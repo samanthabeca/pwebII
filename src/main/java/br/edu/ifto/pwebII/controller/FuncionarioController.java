@@ -2,40 +2,40 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Departamento;
 import br.edu.ifto.pwebII.model.entity.Funcionario;
-import br.edu.ifto.pwebII.model.jdbc.dao.DepartamentoDAO;
-import br.edu.ifto.pwebII.model.jdbc.dao.FuncionarioDAO;
+import br.edu.ifto.pwebII.model.jdbc.repository.DepartamentoRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.FuncionarioRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Transactional
 @Controller
 @RequestMapping("funcionario")
 public class FuncionarioController {
 
-    FuncionarioDAO dao;
-    DepartamentoDAO departamentoDAO;
+    private final FuncionarioRepository funcionarioRep;
+    private final DepartamentoRepository departamentoRep;
 
-    public FuncionarioController(){
-        dao = new FuncionarioDAO();
-        departamentoDAO = new DepartamentoDAO();
+    @Autowired
+    public FuncionarioController(FuncionarioRepository funcionarioRep, DepartamentoRepository departamentoRep) {
+        this.funcionarioRep = funcionarioRep;
+        this.departamentoRep = departamentoRep;
     }
 
-    /**
-     * @param funcionario necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller.
-     * @return
-     */
     @GetMapping("/form")
     public ModelAndView form(Funcionario funcionario, ModelMap model){
-        model.addAttribute("departamento", departamentoDAO.buscarDepartamento());
-        return new ModelAndView("/funcionario/form", model);
+        model.addAttribute("departamento", departamentoRep.departamentos());
+        return new ModelAndView("funcionario/form", model);
     }
 
     @GetMapping("/list")
     public ModelAndView listar(ModelMap model) {
-        model.addAttribute("funcionario", dao.buscarFuncionario());
-        return new ModelAndView("/funcionario/list", model);
+        model.addAttribute("funcionario", funcionarioRep.funcionarios());
+        return new ModelAndView("funcionario/list", model);
     }
 
     @PostMapping("/save")
@@ -45,44 +45,33 @@ public class FuncionarioController {
             return "redirect:/funcionario/list";
         }
 
-        dao.save(funcionario);
+        funcionarioRep.save(funcionario);
         return "redirect:/funcionario/list";
     }
 
-    /**
-     * @param id
-     * @return
-     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
-     */
     @PostMapping("/remove/{id}")
     public ModelAndView remove(@PathVariable("id") Long id){
-        dao.remove(id);
+        funcionarioRep.remove(id);
         return new ModelAndView("redirect:/funcionario/list");
     }
 
-    /**
-     * @param id
-     * @return
-     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
-     */
     @GetMapping("/edit/{id}")
     public ModelAndView edit(@PathVariable("id") Long id, ModelMap model) {
-        Funcionario funcionario = dao.buscarFuncionario(id);
+        Funcionario funcionario = funcionarioRep.funcionario(id);
 
-        // Garante que o objeto departamento não seja nulo para evitar erros no formulário
         if (funcionario != null && funcionario.getDepartamento() == null) {
             funcionario.setDepartamento(new Departamento());
         }
 
         model.addAttribute("funcionario", funcionario);
-        model.addAttribute("departamento", departamentoDAO.buscarDepartamento());
+        model.addAttribute("departamento", departamentoRep.departamentos());
 
-        return new ModelAndView("/funcionario/form", model);
+        return new ModelAndView("funcionario/form", model);
     }
 
     @PostMapping("/update")
     public ModelAndView update(Funcionario funcionario) {
-        dao.update(funcionario);
+        funcionarioRep.update(funcionario);
         return new ModelAndView("redirect:/funcionario/list");
     }
 }

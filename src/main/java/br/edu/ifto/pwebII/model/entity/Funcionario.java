@@ -1,10 +1,23 @@
 package br.edu.ifto.pwebII.model.entity;
 
-public class Funcionario {
+import jakarta.persistence.*;
+import java.io.Serializable;
 
+@Entity
+@Table(name = "tb_funcionario")
+public class Funcionario implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
+
+    // Muitos funcionários pertencem a UM departamento
+    @ManyToOne
+    @JoinColumn(name = "id_departamento")
     private Departamento departamento;
+
     private double salario;
 
     public Long getId() {

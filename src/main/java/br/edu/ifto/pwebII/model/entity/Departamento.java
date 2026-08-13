@@ -1,8 +1,24 @@
 package br.edu.ifto.pwebII.model.entity;
 
-public class Departamento {
+import jakarta.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "tb_departamento")
+public class Departamento implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
+
+    // Um departamento possui VÁRIOS funcionários
+    // "departamento" é o nome do atributo mapeado na classe Funcionario
+    @OneToMany(mappedBy = "departamento", cascade = CascadeType.ALL)
+    private List<Funcionario> funcionarios = new ArrayList<>();
 
     public Departamento() {}
 
@@ -25,5 +41,13 @@ public class Departamento {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public List<Funcionario> getFuncionarios() {
+        return funcionarios;
+    }
+
+    public void setFuncionarios(List<Funcionario> funcionarios) {
+        this.funcionarios = funcionarios;
     }
 }

@@ -9,7 +9,7 @@
 <body class="container mt-5">
 <h1>Lista de Pessoas</h1>
 
-<!-- Exibição de mensagens tratadas -->
+<!-- Mensagens de Feedback -->
 <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
     <span th:text="${mensagemErro}"></span>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -25,7 +25,8 @@
     <tr>
         <th>Id</th>
         <th>Nome</th>
-        <!-- Alterado para <th> simples sem colspan, igual ao de Departamento -->
+        <th>Idade</th>
+        <th>Endereço</th>
         <th class="text-center" style="width: 200px;">Ações</th>
     </tr>
     </thead>
@@ -33,15 +34,15 @@
     <tr th:each="p : ${pessoa}">
         <td th:text="${p.id}"></td>
         <td th:text="${p.nome}"></td>
-        <!-- Adicionada a tag <td> de abertura que faltava -->
+        <td th:text="${p.idade}"></td>
+        <!-- Exibe o Logradouro e Bairro tratando caso o endereço seja nulo -->
+        <td th:text="${p.endereco != null ? p.endereco.logradouro + ' - ' + p.endereco.bairro : 'Não informado'}"></td>
         <td>
             <div class="d-flex justify-content-center align-items-center gap-2">
-                <!-- Editar continua sendo GET (link normal) -->
                 <a th:href="@{/pessoa/edit/{id}(id=${p.id})}" class="btn btn-sm btn-outline-primary">
                     Editar
                 </a>
 
-                <!-- Excluir passa a ser POST (formulário) -->
                 <form th:action="@{/pessoa/remove/{id}(id=${p.id})}" method="post" class="m-0 p-0">
                     <button type="submit"
                             onclick="return confirm('Tem certeza que deseja excluir este registro?');"
