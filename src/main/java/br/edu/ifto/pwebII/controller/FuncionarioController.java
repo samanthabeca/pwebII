@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+
 @Transactional
 @Controller
 @RequestMapping("funcionario")
@@ -40,7 +42,8 @@ public class FuncionarioController {
 
     @PostMapping("/save")
     public String save(Funcionario funcionario, RedirectAttributes redirect) {
-        if (funcionario.getSalario() <= 0.0) {
+        if (funcionario.getSalario().compareTo(BigDecimal.ZERO) <= 0) {
+            // Salário é menor ou igual a 0.0
             redirect.addFlashAttribute("mensagemErro", "O salário deve ser maior que R$ 0,00.");
             return "redirect:/funcionario/list";
         }
@@ -82,8 +85,14 @@ public class FuncionarioController {
     }
 
     @PostMapping("/update")
-    public ModelAndView update(Funcionario funcionario) {
+    public String update(Funcionario funcionario, RedirectAttributes redirect) {
+        if (funcionario.getSalario().compareTo(BigDecimal.ZERO) <= 0) {
+            // Salário é menor ou igual a 0.0
+            redirect.addFlashAttribute("mensagemErro", "O salário deve ser maior que R$ 0,00.");
+            return "redirect:/funcionario/list";
+        }
+
         funcionarioRep.update(funcionario);
-        return new ModelAndView("redirect:/funcionario/list");
+        return "redirect:/funcionario/list";
     }
 }

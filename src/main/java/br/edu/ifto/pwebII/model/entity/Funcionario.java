@@ -2,6 +2,7 @@ package br.edu.ifto.pwebII.model.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tb_funcionario")
@@ -18,7 +19,7 @@ public class Funcionario implements Serializable {
     @JoinColumn(name = "id_departamento")
     private Departamento departamento;
 
-    private double salario;
+    private BigDecimal salario;
 
     public Long getId() {
         return id;
@@ -44,11 +45,11 @@ public class Funcionario implements Serializable {
         this.departamento = departamento;
     }
 
-    public double getSalario() {
+    public BigDecimal getSalario() {
         return salario;
     }
 
-    public void setSalario(double salario) {
+    public void setSalario(BigDecimal salario) {
         this.salario = salario;
     }
 }
