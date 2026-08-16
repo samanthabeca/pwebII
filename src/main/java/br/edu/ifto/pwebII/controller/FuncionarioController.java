@@ -49,10 +49,22 @@ public class FuncionarioController {
         return "redirect:/funcionario/list";
     }
 
+    /**
+     * @param id
+     * @return
+     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
+     */
     @PostMapping("/remove/{id}")
-    public ModelAndView remove(@PathVariable("id") Long id){
-        funcionarioRep.remove(id);
-        return new ModelAndView("redirect:/funcionario/list");
+    public String remove(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        boolean removido = funcionarioRep.remove(id);
+
+        if (removido) {
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Funcionário(a) excluído(a) com sucesso!");
+        } else {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Não foi possível excluir o(a) funcionário(a).");
+        }
+
+        return "redirect:/funcionario/list";
     }
 
     @GetMapping("/edit/{id}")
