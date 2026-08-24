@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Detalhes da Consulta</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Detalhes da Consulta #<span th:text="${consulta.id_consulta}"></span></h3>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Paciente:</strong>
+                <p class="fs-5" th:text="${consulta.paciente.nome}"></p>
+            </div>
+            <div class="col-md-6">
+                <strong>Médico:</strong>
+                <p class="fs-5" th:text="${consulta.medico.nome}"></p>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Data e hora:</strong>
+                <p th:text="${#temporals.format(consulta.data, 'dd/MM/yyyy - HH:mm')}"></p>
+            </div>
+            <div class="col-md-6">
+                <strong>Valor:</strong>
+                <p th:text="${'R$ ' + #numbers.formatDecimal(consulta.valor, 1, 'POINT', 2, 'COMMA')}"></p>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>Observação:</strong>
+            <p class="text-muted" th:text="${consulta.observacao}"></p>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a th:href="@{/consulta/edit/{id}(id=${consulta.id_consulta})}" class="btn btn-warning">Editar</a>
+        <a th:href="@{/consulta/list}" class="btn btn-secondary">Voltar</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
