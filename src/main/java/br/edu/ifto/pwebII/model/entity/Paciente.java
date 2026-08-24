@@ -19,7 +19,8 @@ public class Paciente implements Serializable {
 
     // Um paciente possui VÁRIAS consultas
     // "paciente" é o nome do atributo mapeado com name na classe Consulta
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
+//    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "paciente")
     private List<Consulta> consultas = new ArrayList<>();
 
     public Long getId_paciente() {

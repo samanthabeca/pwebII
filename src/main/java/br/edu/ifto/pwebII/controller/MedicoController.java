@@ -1,9 +1,12 @@
 package br.edu.ifto.pwebII.controller;
 
+import br.edu.ifto.pwebII.model.entity.Consulta;
 import br.edu.ifto.pwebII.model.entity.Medico;
+import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -11,17 +14,21 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Transactional
 @Controller
 @RequestMapping("medico")
 public class MedicoController {
 
     private final MedicoRepository repository;
+    private final ConsultaRepository consultaRep;
 
     // O Spring injetará o repositório automaticamente
     @Autowired
-    public MedicoController(MedicoRepository repository) {
+    public MedicoController(MedicoRepository repository, ConsultaRepository consultaRep) {
         this.repository = repository;
+        this.consultaRep = consultaRep;
     }
 
     @GetMapping("/form")
@@ -42,15 +49,17 @@ public class MedicoController {
     }
 
     @PostMapping("/remove/{id}")
-    public String remove(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        boolean removido = repository.remove(id);
+    public String remove(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        List<Consulta> consultasDoMedico = consultaRep.consultasPorMedico(id);
 
-        if (removido) {
-            redirectAttributes.addFlashAttribute("mensagemSucesso", "Médico excluído com sucesso!");
-        } else {
+        if (!consultasDoMedico.isEmpty()){
             redirectAttributes.addFlashAttribute("mensagemErro",
-                    "Não é possível excluir o médico.");
+                    "Não é possível excluir o(a) médico(a) " + repository.medico(id).getNome() + ", pois ele(a) possui consultas vinculadas a ele(a).");
+            return "redirect:/medico/list";
         }
+
+        repository.remove(id);
+        redirectAttributes.addFlashAttribute("mensagemSucesso", "Médico excluído com sucesso!");
 
         return "redirect:/medico/list";
     }
