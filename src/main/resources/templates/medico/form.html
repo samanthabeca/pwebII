@@ -8,23 +8,53 @@
 </head>
 <body class="container mt-5">
 
-<h1 th:text="${medico.id_medico == null ? 'Cadastro de Médico' : 'Edição de Médico'}"></h1>
+<h1 th:text="${medico.id == null ? 'Cadastro de Médico' : 'Edição de Médico'}"></h1>
 
-<form th:action="${medico.id_medico == null} ? @{/medico/save} : @{/medico/update}" th:object="${medico}" method="post">
-    <input type="hidden" th:field="*{id_medico}">
+<form th:action="${medico.id == null} ? @{/medico/save} : @{/medico/update}"
+      th:object="${medico}"
+      method="post">
+
+    <input type="hidden" th:field="*{id}">
+
     <div class="mb-3">
         <label for="nome" class="form-label">Nome:</label>
-        <input type="text" th:field="*{nome}" id="nome" class="form-control" placeholder="Digite o nome do médico" required>
+        <input type="text"
+               th:field="*{nome}"
+               id="nome"
+               class="form-control"
+               placeholder="Digite o nome do médico"
+               required>
     </div>
+
+    <div class="mb-3">
+        <label for="cpf" class="form-label">CPF:</label>
+        <input type="text"
+               th:field="*{cpf}"
+               id="cpf"
+               class="form-control"
+               placeholder="Digite o CPF"
+               maxlength="11"
+               required>
+    </div>
+
     <div class="mb-3">
         <label for="crm" class="form-label">CRM:</label>
-        <input type="text" th:field="*{crm}" id="crm" class="form-control" placeholder="Digite o CRM" required>
+        <input type="text"
+               th:field="*{crm}"
+               id="crm"
+               class="form-control"
+               placeholder="Digite o CRM"
+               required>
     </div>
-    <br/><br/>
+
+    <br/>
 
     <input type="submit" value="Enviar" class="btn btn-primary">
     <a th:href="@{/medico/list}" class="btn btn-success">Listar</a>
-    <a th:href="@{/}" class="btn btn btn-secondary">Voltar</a>
+    <a th:href="@{/}" class="btn btn-secondary">Voltar</a>
+
 </form>
+
 </body>
 </html>
+

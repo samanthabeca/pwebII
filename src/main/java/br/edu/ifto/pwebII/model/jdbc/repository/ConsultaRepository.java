@@ -38,13 +38,13 @@ public class ConsultaRepository {
     }
 
     public List<Consulta> consultasPorPaciente(Long idPaciente) {
-        Query query = em.createQuery("from Consulta c where c.paciente.id_paciente = :idPaciente");
+        Query query = em.createQuery("from Consulta c where c.paciente.id = :idPaciente");
         query.setParameter("idPaciente", idPaciente);
         return query.getResultList();
     }
 
     public List<Consulta> consultasPorMedico(Long idMedico) {
-        Query query = em.createQuery("from Consulta c where c.medico.id_medico = :idMedico");
+        Query query = em.createQuery("from Consulta c where c.medico.id = :idMedico");
         query.setParameter("idMedico", idMedico);
         return query.getResultList();
     }

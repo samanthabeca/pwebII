@@ -78,9 +78,14 @@ public class ConsultaController {
     public ModelAndView edit(@PathVariable("id") Long id, ModelMap model) {
         Consulta consulta = consultaRep.consulta(id);
 
-        if (consulta != null && consulta.getPaciente() == null && consulta.getMedico() == null) {
-            consulta.setPaciente(new Paciente());
-            consulta.setMedico(new Medico());
+        if (consulta != null){
+            if (consulta.getPaciente() == null) {
+                consulta.setPaciente(new Paciente());
+            }
+
+            if (consulta.getMedico() == null) {
+                consulta.setMedico(new Medico());
+            }
         }
 
         model.addAttribute("consulta", consulta);
