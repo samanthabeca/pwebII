@@ -1,10 +1,10 @@
-INSERT INTO TB_PACIENTE (id, cpf, nome, telefone) VALUES (1, '12345678901', 'Rui Barbosa', '6332142050');
-INSERT INTO TB_PACIENTE (id, cpf, nome, telefone) VALUES (2, '12345678902', 'Ana Clara', '6332182500');
-INSERT INTO TB_PACIENTE (id, cpf, nome, telefone) VALUES (3, '12345678903', 'Beatriz Souza', '6332320080');
+INSERT INTO TB_PACIENTE (id, cpf, nome, telefone, email) VALUES (1, '12345678901', 'Rui Barbosa', '6332142050', 'rui@mail.com');
+INSERT INTO TB_PACIENTE (id, cpf, nome, telefone, email) VALUES (2, '12345678902', 'Ana Clara', '6332182500','ana@mail.com');
+INSERT INTO TB_PACIENTE (id, cpf, nome, telefone, email) VALUES (3, '12345678903', 'Beatriz Souza', '6332320080','bia@mail.com');
 
-INSERT INTO TB_MEDICO (id, cpf, nome, crm) VALUES (4, '12345678904', 'Maria Souza', '2580/TO');
-INSERT INTO TB_MEDICO (id, cpf, nome, crm) VALUES (5, '12345678905', 'Derick Silva', '3250/TO');
-INSERT INTO TB_MEDICO (id, cpf, nome, crm) VALUES (6, '12345678906', 'Antonio Paiva', '5030/TO');
+INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (4, '12345678904', 'Maria Souza', '2580/TO','maria@mail.com');
+INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (5, '12345678905', 'Derick Silva', '3250/TO','derick@mail.com');
+INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (6, '12345678906', 'Antonio Paiva', '5030/TO','toni@mail.com');
 
 INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (1, '2026-08-20T15:30', 500.0, 'Hipertensão', 5, 1);
 INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (2, '2026-08-21T16:30', 1500.0, 'Implanon', 4, 2);
