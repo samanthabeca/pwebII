@@ -8,23 +8,53 @@
 </head>
 <body class="container mt-5">
 
-<h1 th:text="${paciente.id_paciente == null ? 'Cadastro de Paciente' : 'Edição de Paciente'}"></h1>
+<h1 th:text="${paciente.id == null ? 'Cadastro de Paciente' : 'Edição de Paciente'}"></h1>
 
-<form th:action="${paciente.id_paciente == null} ? @{/paciente/save} : @{/paciente/update}" th:object="${paciente}" method="post">
-    <input type="hidden" th:field="*{id_paciente}">
+<form th:action="${paciente.id == null} ? @{/paciente/save} : @{/paciente/update}"
+      th:object="${paciente}"
+      method="post">
+
+    <input type="hidden" th:field="*{id}">
+
     <div class="mb-3">
         <label for="nome" class="form-label">Nome:</label>
-        <input type="text" th:field="*{nome}" id="nome" class="form-control" placeholder="Digite o nome do paciente" required>
+        <input type="text"
+               th:field="*{nome}"
+               id="nome"
+               class="form-control"
+               placeholder="Digite o nome do paciente"
+               required>
     </div>
+
+    <div class="mb-3">
+        <label for="cpf" class="form-label">CPF:</label>
+        <input type="text"
+               th:field="*{cpf}"
+               id="cpf"
+               class="form-control"
+               placeholder="Digite o CPF"
+               maxlength="11"
+               required>
+    </div>
+
     <div class="mb-3">
         <label for="telefone" class="form-label">Telefone:</label>
-        <input type="number" th:field="*{telefone}" id="telefone" class="form-control" placeholder="Digite o telefone" required>
+        <input type="text"
+               th:field="*{telefone}"
+               id="telefone"
+               class="form-control"
+               placeholder="Digite o telefone"
+               required>
     </div>
-    <br/><br/>
+
+    <br/>
 
     <input type="submit" value="Enviar" class="btn btn-primary">
     <a th:href="@{/paciente/list}" class="btn btn-success">Listar</a>
-    <a th:href="@{/}" class="btn btn btn-secondary">Voltar</a>
+    <a th:href="@{/}" class="btn btn-secondary">Voltar</a>
+
 </form>
+
 </body>
 </html>
+
