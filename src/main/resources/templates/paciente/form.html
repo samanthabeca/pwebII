@@ -19,26 +19,10 @@
 
             <input type="hidden" th:field="*{id}">
 
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome:</label>
-                <input type="text"
-                       th:field="*{nome}"
-                       id="nome"
-                       class="form-control"
-                       placeholder="Digite o nome do paciente"
-                       required>
-            </div>
-
-            <div class="mb-3">
-                <label for="cpf" class="form-label">CPF:</label>
-                <input type="text"
-                       th:field="*{cpf}"
-                       id="cpf"
-                       class="form-control"
-                       placeholder="Digite o CPF"
-                       maxlength="11"
-                       required>
-            </div>
+            <th:block th:replace="~{fragments/campos-pessoais :: camposPessoais(
+                placeholderNome='Digite o nome do paciente',
+                placeholderCpf='Digite o CPF do paciente',
+                placeholderEmail='Digite o email do paciente')}"></th:block>
 
             <div class="mb-3">
                 <label for="telefone" class="form-label">Telefone:</label>
@@ -47,16 +31,6 @@
                        id="telefone"
                        class="form-control"
                        placeholder="Digite o telefone"
-                       required>
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="text"
-                       th:field="*{email}"
-                       id="email"
-                       class="form-control"
-                       placeholder="Digite o email do paciente"
                        required>
             </div>
 
