@@ -21,11 +21,26 @@
 
             <input type="hidden" th:field="*{id}">
 
-            <th:block th:replace="~{fragments/campos-pessoais :: camposPessoais(
-                pessoa=${medico},
-                placeholderNome='Digite o nome do médico',
-                placeholderCpf='Digite o CPF do médico',
-                placeholderEmail='Digite o email do médico')}"></th:block>
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome:</label>
+                <input type="text"
+                       th:field="*{nome}"
+                       id="nome"
+                       class="form-control"
+                       placeholder="Digite o nome do médico"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="cpf" class="form-label">CPF:</label>
+                <input type="text"
+                       th:field="*{cpf}"
+                       id="cpf"
+                       class="form-control"
+                       placeholder="Digite o CPF"
+                       maxlength="11"
+                       required>
+            </div>
 
             <div class="mb-3">
                 <label for="crm" class="form-label">CRM:</label>
@@ -37,11 +52,21 @@
                        required>
             </div>
 
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="text"
+                       th:field="*{email}"
+                       id="email"
+                       class="form-control"
+                       placeholder="Digite o email do médico"
+                       required>
+            </div>
+
             <br/>
 
             <input type="submit" value="Enviar" class="btn btn-primary">
             <a th:href="@{/medico/list}" class="btn btn-success">Listar</a>
-            <a th:href="@{/}" class="btn btn-secondary">Início</a>
+            <a th:href="@{/}" class="btn btn-secondary">Voltar</a>
 
         </form>
     </div>
