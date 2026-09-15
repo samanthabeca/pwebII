@@ -67,7 +67,7 @@
                class="btn btn-success">Voltar</a>
             <a th:if="${medico != null}" th:href="@{/medico/list}"
                class="btn btn-success">Voltar</a>
-            <a th:href="@{/}" class="btn btn-secondary">Início</a>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
         </div>
 
     </div>

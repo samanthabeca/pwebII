@@ -2,7 +2,7 @@ package br.edu.ifto.pwebII.model.entity;
 
 import jakarta.persistence.*;
 
-            import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
     @Entity
