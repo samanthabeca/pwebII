@@ -42,8 +42,9 @@ public class MedicoController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Medico medico) {
+    public String save(@ModelAttribute Medico medico, RedirectAttributes redirectAttribute) {
         repository.save(medico);
+        redirectAttribute.addFlashAttribute("mensagemSucesso", "Médico cadastrado com sucesso!");
         return "redirect:/medico/list";
     }
 

@@ -51,8 +51,9 @@ public class ConsultaController {
     }
 
     @PostMapping("/save")
-    public String save(Consulta consulta, RedirectAttributes redirect) {
+    public String save(Consulta consulta, RedirectAttributes redirectAttribute) {
         consultaRep.save(consulta);
+        redirectAttribute.addFlashAttribute("mensagemSucesso", "Consulta cadastrada com sucesso!");
         return "redirect:/consulta/list";
     }
 

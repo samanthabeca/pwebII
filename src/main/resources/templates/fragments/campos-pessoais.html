@@ -1,0 +1,35 @@
+<!--suppress SpellCheckingInspection -->
+<!--suppress ThymeleafVariablesResolveInspection -->
+<th:block th:fragment="camposPessoais(pessoa, placeholderNome, placeholderCpf, placeholderEmail)"
+          th:object="${pessoa}">
+    <div class="mb-3">
+        <label for="nome" class="form-label">Nome:</label>
+        <input type="text"
+               th:field="*{nome}"
+               id="nome"
+               class="form-control"
+               th:placeholder="${placeholderNome}"
+               required>
+    </div>
+
+    <div class="mb-3">
+        <label for="cpf" class="form-label">CPF:</label>
+        <input type="text"
+               th:field="*{cpf}"
+               id="cpf"
+               class="form-control"
+               th:placeholder="${placeholderCpf}"
+               maxlength="11"
+               required>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <input type="text"
+               th:field="*{email}"
+               id="email"
+               class="form-control"
+               th:placeholder="${placeholderEmail}"
+               required>
+    </div>
+</th:block>

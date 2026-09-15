@@ -1,0 +1,75 @@
+
+<header class="container" th:fragment="header">
+
+<!--    <h1 class="mb-4 mt-4">Painel de Navegação</h1>-->
+
+<!--    <div class="list-group col-md-6">-->
+<!--        <a th:href="@{/paciente/form}" class="list-group-item list-group-item-action">-->
+<!--            ➕ Cadastrar Paciente-->
+<!--        </a>-->
+<!--        <a th:href="@{/medico/form}" class="list-group-item list-group-item-action">-->
+<!--            ➕ Cadastrar Médico-->
+<!--        </a>-->
+<!--        <a th:href="@{/consulta/form}" class="list-group-item list-group-item-action">-->
+<!--            ➕ Cadastrar Consulta-->
+<!--        </a>-->
+<!--        <a th:href="@{/paciente/list}" class="list-group-item list-group-item-action">-->
+<!--            📋 Listar Pacientes-->
+<!--        </a>-->
+<!--        <a th:href="@{/medico/list}" class="list-group-item list-group-item-action">-->
+<!--            📋 Listar Médicos-->
+<!--        </a>-->
+<!--        <a th:href="@{/consulta/list}" class="list-group-item list-group-item-action">-->
+<!--            📋 Listar Consultas-->
+<!--        </a>-->
+<!--    </div>-->
+
+    <nav class="navbar navbar-expand-md bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="http://localhost:8080">
+                <img class="w-10" height="40px" src="/imgs/lisa.png"> Clínica Lisa Simpson</a>
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Abrir menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto">
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link active" aria-current="page" href="#">Home</a>-->
+<!--                    </li>-->
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cadastrar
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Listar
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+</header>
+
+
