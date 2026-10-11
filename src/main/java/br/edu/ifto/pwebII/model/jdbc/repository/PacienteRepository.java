@@ -1,43 +1,19 @@
 package br.edu.ifto.pwebII.model.jdbc.repository;
 
 import br.edu.ifto.pwebII.model.entity.Paciente;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-@Repository
-public class PacienteRepository {
+public interface PacienteRepository extends JpaRepository <Paciente, Long> {
+    //add outros metodos que necessitar
 
-    @PersistenceContext
-    private EntityManager em;
+    List<Paciente> findByNome(String nome);
 
-    public void save(Paciente paciente){
-        em.persist(paciente);
-    }
+    Optional<Paciente> findByCpf(String cpf);
 
-    public Paciente paciente(Long id){
-        return em.find(Paciente.class, id);
-    }
+    Optional<Paciente> findByEmailIgnoreCase(String email);
 
-    public List<Paciente> pacientes(){
-        Query query = em.createQuery("from Paciente");
-        return query.getResultList();
-    }
 
-    public boolean remove(Long id){
-        Paciente p = em.find(Paciente.class, id);
-        if (p != null) {
-            em.remove(p);
-            return true;
-        }
-        return false;
-    }
-
-    public void update(Paciente paciente){
-        em.merge(paciente);
-    }
 }

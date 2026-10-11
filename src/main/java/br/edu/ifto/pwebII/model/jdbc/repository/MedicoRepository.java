@@ -1,43 +1,13 @@
 package br.edu.ifto.pwebII.model.jdbc.repository;
 
 import br.edu.ifto.pwebII.model.entity.Medico;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import java.util.Optional;
 
-@Repository
-public class MedicoRepository {
+public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
-    @PersistenceContext
-    private EntityManager em;
+    Optional<Medico> findByCpf(String cpf);
 
-    public void save(Medico medico){
-        em.persist(medico);
-    }
-
-    public Medico medico(Long id){
-        return em.find(Medico.class, id);
-    }
-
-    public List<Medico> medicos(){
-        Query query = em.createQuery("from Medico");
-        return query.getResultList();
-    }
-
-    public boolean remove(Long id){
-        Medico m = em.find(Medico.class, id);
-        if (m != null) {
-            em.remove(m);
-            return true;
-        }
-        return false;
-    }
-
-    public void update(Medico medico){
-        em.merge(medico);
-    }
+    Optional<Medico> findByEmailIgnoreCase(String email);
 }

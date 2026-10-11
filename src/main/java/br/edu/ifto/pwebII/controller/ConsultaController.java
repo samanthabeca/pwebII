@@ -7,6 +7,7 @@ import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -38,20 +40,34 @@ public class ConsultaController {
 
     @GetMapping("/form")
     public ModelAndView form(Consulta consulta, ModelMap model){
-        model.addAttribute("paciente", pacienteRep.pacientes());
-        model.addAttribute("medico", medicoRep.medicos());
+        garantirRelacionamentos(consulta);
+        carregarDadosDoFormulario(model);
 
         return new ModelAndView("consulta/form", model);
     }
 
     @GetMapping("/list")
     public ModelAndView listar(ModelMap model) {
-        model.addAttribute("consulta", consultaRep.consultas());
+        List<Consulta> consultas = consultaRep.findAll();
+        model.addAttribute("consulta", consultas);
+        model.addAttribute("totalConsultas", consultas.size());
+        model.addAttribute("valorTotal", calcularValorTotal(consultas));
         return new ModelAndView("consulta/list", model);
     }
 
     @PostMapping("/save")
-    public String save(Consulta consulta, RedirectAttributes redirectAttribute) {
+    public String save(@Valid Consulta consulta, BindingResult resultado, ModelMap model,
+                       RedirectAttributes redirectAttribute) {
+        if (consulta.getId_consulta() != null) {
+            resultado.reject("consulta.id.invalido", "Não é permitido informar um ID ao cadastrar uma consulta.");
+        }
+        validarRelacionamentos(consulta, resultado);
+
+        if (resultado.hasErrors()) {
+            carregarDadosDoFormulario(model);
+            return "consulta/form";
+        }
+
         consultaRep.save(consulta);
         redirectAttribute.addFlashAttribute("mensagemSucesso", "Consulta cadastrada com sucesso!");
         return "redirect:/consulta/list";
@@ -64,9 +80,8 @@ public class ConsultaController {
      */
     @PostMapping("/remove/{id}")
     public String remove(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        boolean removido = consultaRep.remove(id);
-
-        if (removido) {
+        if(consultaRep.existsById(id)){
+            consultaRep.deleteById(id);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Consulta excluída com sucesso!");
         } else {
             redirectAttributes.addFlashAttribute("mensagemErro", "Não foi possível excluir a consulta");
@@ -76,72 +91,125 @@ public class ConsultaController {
     }
 
     @GetMapping("/edit/{id}")
-    public ModelAndView edit(@PathVariable("id") Long id, ModelMap model) {
-        Consulta consulta = consultaRep.consulta(id);
+    public ModelAndView edit(@PathVariable("id") Long id, ModelMap model, RedirectAttributes redirectAttributes) {
+        Consulta consulta = consultaRep.findById(id).orElse(null);
 
-        if (consulta != null){
-            if (consulta.getPaciente() == null) {
-                consulta.setPaciente(new Paciente());
-            }
-
-            if (consulta.getMedico() == null) {
-                consulta.setMedico(new Medico());
-            }
+        if (consulta == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Consulta não encontrada.");
+            return new ModelAndView("redirect:/consulta/list");
         }
 
+        garantirRelacionamentos(consulta);
         model.addAttribute("consulta", consulta);
-        model.addAttribute("paciente", pacienteRep.pacientes());
-        model.addAttribute("medico", medicoRep.medicos());
+        carregarDadosDoFormulario(model);
 
         return new ModelAndView("consulta/form", model);
     }
 
     @PostMapping("/update")
-    public String update(Consulta consulta, RedirectAttributes redirect) {
-        consultaRep.update(consulta);
+    public String update(@Valid Consulta consulta, BindingResult resultado, ModelMap model,
+                         RedirectAttributes redirect) {
+        if (consulta.getId_consulta() == null || !consultaRep.existsById(consulta.getId_consulta())) {
+            resultado.reject("consulta.inexistente", "A consulta informada não existe mais.");
+        }
+        validarRelacionamentos(consulta, resultado);
+
+        if (resultado.hasErrors()) {
+            carregarDadosDoFormulario(model);
+            return "consulta/form";
+        }
+
+        consultaRep.save(consulta);
+        redirect.addFlashAttribute("mensagemSucesso", "Consulta atualizada com sucesso!");
         return "redirect:/consulta/list";
     }
 
     @GetMapping("/paciente/{id}")
-    public ModelAndView listByPaciente(@PathVariable("id") Long id, ModelAndView model) {
-        // 1. Busca no banco as consultas desse paciente
-        List<Consulta> listaFiltrada = consultaRep.consultasPorPaciente(id);
-        Paciente paciente = pacienteRep.paciente(id);
+    public ModelAndView listByPaciente(@PathVariable("id") Long id, ModelAndView model,
+                                       RedirectAttributes redirectAttributes) {
+        Paciente paciente = pacienteRep.findById(id).orElse(null);
+        if (paciente == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Paciente não encontrado.");
+            return new ModelAndView("redirect:/paciente/list");
+        }
+        List<Consulta> listaFiltrada = consultaRep.findAllByPaciente_Id(id);
 
-//        // LINHA DE TESTE: veja o que aparece no console do STS / IntelliJ / Eclipse
-//        System.out.println(">>> Consultas encontradas no banco: " + listaFiltrada.size());
-
-        // 2. Envia a lista e o paciente para a página
         model.addObject("consulta", listaFiltrada);
-        model.addObject("paciente", paciente); // Envia o paciente para a view
-        // 3. Abre a página de listagem de consultas
+        model.addObject("paciente", paciente);
+        model.addObject("totalConsultas", listaFiltrada.size());
+        model.addObject("valorTotal", calcularValorTotal(listaFiltrada));
         model.setViewName("consulta/list");
 
         return model;
     }
 
     @GetMapping("/medico/{id}")
-    public ModelAndView listByMedico(@PathVariable("id") Long id, ModelAndView model) {
-        // 1. Busca no banco as consultas desse medico
-        List<Consulta> listaFiltrada = consultaRep.consultasPorMedico(id);
-        Medico medico = medicoRep.medico(id);
+    public ModelAndView listByMedico(@PathVariable("id") Long id, ModelAndView model,
+                                     RedirectAttributes redirectAttributes) {
+        Medico medico = medicoRep.findById(id).orElse(null);
+        if (medico == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Médico não encontrado.");
+            return new ModelAndView("redirect:/medico/list");
+        }
+        List<Consulta> listaFiltrada = consultaRep.findAllByMedico_Id(id);
 
-        // 2. Envia a lista e o medico para a página
         model.addObject("consulta", listaFiltrada);
-        model.addObject("medico", medico); // Envia o médico para a view
-        // 3. Abre a página de listagem de consultas
+        model.addObject("medico", medico);
+        model.addObject("totalConsultas", listaFiltrada.size());
+        model.addObject("valorTotal", calcularValorTotal(listaFiltrada));
         model.setViewName("consulta/list");
 
         return model;
     }
 
     @GetMapping("/{id}")
-    public ModelAndView show(@PathVariable("id") Long id, ModelAndView model) {
-        Consulta consulta = consultaRep.consulta(id);
+    public ModelAndView show(@PathVariable("id") Long id, ModelAndView model,
+                             RedirectAttributes redirectAttributes) {
+        Consulta consulta = consultaRep.findById(id).orElse(null);
+        if (consulta == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Consulta não encontrada.");
+            return new ModelAndView("redirect:/consulta/list");
+        }
 
         model.addObject("consulta", consulta);
-        model.setViewName("consulta/detail"); // Nome do arquivo HTML de detalhes
+        model.setViewName("consulta/detail");
 
         return model;
+    }
+
+    private BigDecimal calcularValorTotal(List<Consulta> consultas) {
+        return consultas.stream()
+                .map(Consulta::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void carregarDadosDoFormulario(ModelMap model) {
+        model.addAttribute("paciente", pacienteRep.findAll());
+        model.addAttribute("medico", medicoRep.findAll());
+    }
+
+    private void garantirRelacionamentos(Consulta consulta) {
+        if (consulta.getPaciente() == null) {
+            consulta.setPaciente(new Paciente());
+        }
+        if (consulta.getMedico() == null) {
+            consulta.setMedico(new Medico());
+        }
+    }
+
+    private void validarRelacionamentos(Consulta consulta, BindingResult resultado) {
+        garantirRelacionamentos(consulta);
+
+        if (consulta.getPaciente().getId() == null) {
+            resultado.rejectValue("paciente.id", "consulta.paciente.obrigatorio", "Selecione um paciente.");
+        } else if (!pacienteRep.existsById(consulta.getPaciente().getId())) {
+            resultado.rejectValue("paciente.id", "consulta.paciente.invalido", "O paciente selecionado não existe.");
+        }
+
+        if (consulta.getMedico().getId() == null) {
+            resultado.rejectValue("medico.id", "consulta.medico.obrigatorio", "Selecione um médico.");
+        } else if (!medicoRep.existsById(consulta.getMedico().getId())) {
+            resultado.rejectValue("medico.id", "consulta.medico.invalido", "O médico selecionado não existe.");
+        }
     }
 }

@@ -6,15 +6,17 @@
 </head>
 
 <body>
-<header th:replace="~{fragments/header :: header}">
 
-</header>
 <main>
 
     <div class="container mt-5">
         <h1>Lista de Pacientes</h1>
 
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <div class="alert alert-info mt-3 mb-0" role="status">
+            Total de pacientes: <strong th:text="${totalPacientes}">0</strong>
+        </div>
 
         <div class="table-responsive-md mt-3">
         <table class="table table-bordered table-striped align-middle mb-0">

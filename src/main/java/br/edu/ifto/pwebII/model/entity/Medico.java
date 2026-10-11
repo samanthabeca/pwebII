@@ -1,6 +1,8 @@
 package br.edu.ifto.pwebII.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,9 @@ import java.util.List;
 @Table(name = "tb_medico")
 public class Medico extends PessoaFisica {
 
+    @NotBlank(message = "O CRM é obrigatório.")
+    @Pattern(regexp = "\\d{4,6}/[A-Z]{2}", message = "Informe o CRM no formato 1234/UF.")
+    @Column(nullable = false, length = 9)
     private String crm;
 
     // Um médico possui várias consultas

@@ -5,15 +5,16 @@ import br.edu.ifto.pwebII.model.entity.Paciente;
 import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.Objects;
 
 @Transactional
 @Controller
@@ -37,12 +38,24 @@ public class PacienteController {
 
     @GetMapping("/list")
     public String listar(Model model) {
-        model.addAttribute("paciente", repository.pacientes());
+        List<Paciente> pacientes = repository.findAll();
+        model.addAttribute("paciente", pacientes);
+        model.addAttribute("totalPacientes", pacientes.size());
         return "paciente/list";
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Paciente paciente, RedirectAttributes redirectAttribute) {
+    public String save(@Valid @ModelAttribute Paciente paciente, BindingResult resultado,
+                       RedirectAttributes redirectAttribute) {
+        if (paciente.getId() != null) {
+            resultado.reject("paciente.id.invalido", "Não é permitido informar um ID ao cadastrar um paciente.");
+        }
+        validarDadosUnicos(paciente, resultado);
+
+        if (resultado.hasErrors()) {
+            return "paciente/form";
+        }
+
         repository.save(paciente);
         redirectAttribute.addFlashAttribute("mensagemSucesso", "Paciente cadastrado com sucesso!");
         return "redirect:/paciente/list";
@@ -50,29 +63,64 @@ public class PacienteController {
 
     @PostMapping("/remove/{id}")
     public String remove(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        List<Consulta> consultasDoPaciente = consultaRep.consultasPorPaciente(id);
-
-        if (!consultasDoPaciente.isEmpty()){
-            redirectAttributes.addFlashAttribute("mensagemErro",
-                    "Não é possível excluir o(a) paciente " + repository.paciente(id).getNome() + ", pois ele(a) possui consultas vinculadas a ele(a).");
+        Paciente paciente = repository.findById(id).orElse(null);
+        if (paciente == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Paciente não encontrado.");
             return "redirect:/paciente/list";
         }
 
-        repository.remove(id);
+        List<Consulta> consultasDoPaciente = consultaRep.findAllByPaciente_Id(id);
+
+        if (!consultasDoPaciente.isEmpty()){
+            redirectAttributes.addFlashAttribute("mensagemErro",
+                    "Não é possível excluir o(a) paciente " + paciente.getNome() + ", pois ele(a) possui consultas vinculadas a ele(a).");
+            return "redirect:/paciente/list";
+        }
+
+        repository.deleteById(id);
         redirectAttributes.addFlashAttribute("mensagemSucesso", "Paciente excluído com sucesso!");
 
         return "redirect:/paciente/list";
     }
 
     @GetMapping("/edit/{id}")
-    public ModelAndView edit(@PathVariable("id") Long id, ModelMap model) {
-        model.addAttribute("paciente", repository.paciente(id));
-        return new ModelAndView("paciente/form", model);
+    public String edit(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        Paciente paciente = repository.findById(id).orElse(null);
+        if (paciente == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Paciente não encontrado.");
+            return "redirect:/paciente/list";
+        }
+
+        model.addAttribute("paciente", paciente);
+        return "paciente/form";
     }
 
     @PostMapping("/update")
-    public ModelAndView update(Paciente paciente) {
-        repository.update(paciente);
-        return new ModelAndView("redirect:/paciente/list");
+    public String update(@Valid @ModelAttribute Paciente paciente, BindingResult resultado) {
+        if (paciente.getId() == null || !repository.existsById(paciente.getId())) {
+            resultado.reject("paciente.inexistente", "O paciente informado não existe mais.");
+        }
+        validarDadosUnicos(paciente, resultado);
+
+        if (resultado.hasErrors()) {
+            return "paciente/form";
+        }
+
+        repository.save(paciente);
+        return "redirect:/paciente/list";
+    }
+
+    private void validarDadosUnicos(Paciente paciente, BindingResult resultado) {
+        if (!resultado.hasFieldErrors("cpf") && repository.findByCpf(paciente.getCpf())
+                .filter(existente -> !Objects.equals(existente.getId(), paciente.getId()))
+                .isPresent()) {
+            resultado.rejectValue("cpf", "paciente.cpf.duplicado", "Já existe um paciente cadastrado com este CPF.");
+        }
+
+        if (!resultado.hasFieldErrors("email") && repository.findByEmailIgnoreCase(paciente.getEmail())
+                .filter(existente -> !Objects.equals(existente.getId(), paciente.getId()))
+                .isPresent()) {
+            resultado.rejectValue("email", "paciente.email.duplicado", "Já existe um paciente cadastrado com este e-mail.");
+        }
     }
 }
