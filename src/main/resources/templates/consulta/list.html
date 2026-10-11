@@ -12,10 +12,23 @@
 <main>
 
     <div class="container mt-5">
-        <h1 th:text="${paciente != null} ? 'Lista de Consultas - Paciente: ' + ${paciente.nome} :
-    (${medico != null} ? 'Lista de Consultas - Médico(a): ' + ${medico.nome} : 'Lista de Consultas')"></h1>
+        <h1 th:text="${paciente != null ? 'Lista de Consultas - Paciente: ' + paciente.nome :
+    (medico != null ? 'Lista de Consultas - Médico(a): ' + medico.nome : 'Lista de Consultas')}"></h1>
 
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <div class="alert alert-info mb-0" role="status">
+                    Total de consultas: <strong th:text="${totalConsultas}">0</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-success mb-0" role="status">
+                    Valor total: <strong th:text="${'R$ ' + #numbers.formatDecimal(valorTotal, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</strong>
+                </div>
+            </div>
+        </div>
 
         <table class="table table-bordered table-striped align-middle mt-3">
             <thead class="table-light">

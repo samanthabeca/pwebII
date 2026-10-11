@@ -7,8 +7,10 @@
                th:field="*{nome}"
                id="nome"
                class="form-control"
+               th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid' : ''"
                th:placeholder="${placeholderNome}"
-               required>
+               >
+        <div class="invalid-feedback" th:errors="*{nome}"></div>
     </div>
 
     <div class="mb-3">
@@ -17,9 +19,11 @@
                th:field="*{cpf}"
                id="cpf"
                class="form-control"
+               th:classappend="${#fields.hasErrors('cpf')} ? 'is-invalid' : ''"
                th:placeholder="${placeholderCpf}"
                maxlength="11"
-               required>
+               >
+        <div class="invalid-feedback" th:errors="*{cpf}"></div>
     </div>
 
     <div class="mb-3">
@@ -28,7 +32,9 @@
                th:field="*{email}"
                id="email"
                class="form-control"
+               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
                th:placeholder="${placeholderEmail}"
-               required>
+               >
+        <div class="invalid-feedback" th:errors="*{email}"></div>
     </div>
 </th:block>

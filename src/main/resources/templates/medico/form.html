@@ -21,6 +21,10 @@
 
             <input type="hidden" th:field="*{id}">
 
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+            </div>
+
             <th:block th:replace="~{fragments/campos-pessoais :: camposPessoais(
                 placeholderNome='Digite o nome do médico',
                 placeholderCpf='Digite o CPF do médico',
@@ -32,8 +36,11 @@
                        th:field="*{crm}"
                        id="crm"
                        class="form-control"
+                       th:classappend="${#fields.hasErrors('crm')} ? 'is-invalid' : ''"
                        placeholder="Digite o CRM"
-                       required>
+                       maxlength="9"
+                       >
+                <div class="invalid-feedback" th:errors="*{crm}"></div>
             </div>
 
             <br/>
