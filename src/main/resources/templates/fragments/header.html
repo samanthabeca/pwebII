@@ -40,16 +40,16 @@
 <!--                    <li class="nav-item">-->
 <!--                        <a class="nav-link active" aria-current="page" href="#">Home</a>-->
 <!--                    </li>-->
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('MEDICO','ADMIN')" class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Cadastrar
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
+                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
+                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -57,16 +57,16 @@
                             Listar
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
+                            <li><a th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
-            <span sec:authorize="isAuthenticated()">
+            <span sec:authorize="isAuthenticated()" class="pe-3">
                 Olá, <strong sec:authentication="name">usuário</strong>
             </span>
             <a sec:authorize="!isAuthenticated()" th:href="@{/login}">Entrar</a>

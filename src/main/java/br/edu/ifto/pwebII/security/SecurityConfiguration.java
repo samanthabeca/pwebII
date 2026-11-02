@@ -45,15 +45,19 @@ public class SecurityConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user = User.withUsername("user")
+        UserDetails medico = User.withUsername("medico")
                 .password(passwordEncoder.encode("123"))
-                .roles("USER")
+                .roles("MEDICO")
+                .build();
+        UserDetails paciente = User.withUsername("paciente")
+                .password(passwordEncoder.encode("123"))
+                .roles("PACIENTE")
                 .build();
         UserDetails admin = User.withUsername("admin")
                 .password(passwordEncoder.encode("admin"))
-                .roles("ADMIN", "USER")
+                .roles("ADMIN", "MEDICO", "PACIENTE")
                 .build();
-        return new InMemoryUserDetailsManager(user, admin);
+        return new InMemoryUserDetailsManager(medico, paciente, admin);
     }
 
     /**
