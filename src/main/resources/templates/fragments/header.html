@@ -1,5 +1,4 @@
-
-<header class="container" th:fragment="header">
+<header class="container" th:fragment="header" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <!--    <h1 class="mb-4 mt-4">Painel de Navegação</h1>-->
 
@@ -58,15 +57,22 @@
                             Listar
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
+                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
+                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
+                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
+            <span sec:authorize="isAuthenticated()">
+                Olá, <strong sec:authentication="name">usuário</strong>
+            </span>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/login}">Entrar</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-secondary">Sair</button>
+            </form>
         </div>
     </nav>
 
