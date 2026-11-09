@@ -69,7 +69,6 @@
             <span sec:authorize="isAuthenticated()" class="pe-3">
                 Olá, <strong sec:authentication="name">usuário</strong>
             </span>
-            <a sec:authorize="!isAuthenticated()" th:href="@{/login}">Entrar</a>
             <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                 <button type="submit" class="btn btn-outline-secondary">Sair</button>
             </form>
