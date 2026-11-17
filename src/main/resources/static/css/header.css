@@ -1,0 +1,15 @@
+.link-entrar,
+.link-entrar:visited,
+.link-entrar:focus,
+.link-entrar:active {
+    color: blue;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    /*text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.35);*/
+}
+
+.link-entrar:hover {
+    color: #38b6ff;
+    font-size: 20px;
+}

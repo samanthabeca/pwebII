@@ -26,7 +26,7 @@
     <nav class="navbar navbar-expand-md bg-body-tertiary">
         <div class="container-fluid">
             <a class="navbar-brand" href="http://localhost:8080">
-                <img class="w-10" height="40px" src="/imgs/lisa.png"> Clínica Lisa Simpson</a>
+                <img class="w-10" height="100px" src="/imgs/logo.png"></a>
             <button class="navbar-toggler" type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent"
@@ -37,9 +37,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto">
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link active" aria-current="page" href="#">Home</a>-->
-<!--                    </li>-->
                     <li sec:authorize="hasAnyRole('MEDICO','ADMIN')" class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Cadastrar
@@ -52,7 +49,7 @@
                             <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="isAuthenticated()" class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Listar
                         </button>
@@ -69,6 +66,8 @@
             <span sec:authorize="isAuthenticated()" class="pe-3">
                 Olá, <strong sec:authentication="name">usuário</strong>
             </span>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="link-entrar">Entrar</a>
+
             <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                 <button type="submit" class="btn btn-outline-secondary">Sair</button>
             </form>
