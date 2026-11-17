@@ -12,5 +12,10 @@ INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_pac
 INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (4, '2026-08-24T17:30', 700.0, 'Enjoo', 5, 2);
 INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (5, '2026-08-25T09:20', 700.0, 'Procedimento na pele', 4, 3);
 
+INSERT INTO PERFIL (id, nome) VALUES (1, 'ADMIN');
+INSERT INTO PERFIL (id, nome) VALUES (2, 'SECRETARIA');
+INSERT INTO PERFIL (id, nome) VALUES (3, 'MEDICO');
+INSERT INTO PERFIL (id, nome) VALUES (4, 'PACIENTE');
+
 ALTER SEQUENCE pessoa_seq RESTART WITH 7;
 ALTER SEQUENCE tb_consulta_seq RESTART WITH 6;
