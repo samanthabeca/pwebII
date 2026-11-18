@@ -9,6 +9,8 @@ import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,8 @@ import org.springframework.validation.BindingResult;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Transactional
 @Controller
@@ -52,6 +56,7 @@ public class ConsultaController {
         model.addAttribute("consulta", consultas);
         model.addAttribute("totalConsultas", consultas.size());
         model.addAttribute("valorTotal", calcularValorTotal(consultas));
+        model.addAttribute("consultasGerenciaveis", consultasGerenciaveis(consultas));
         return new ModelAndView("consulta/list", model);
     }
 
@@ -80,11 +85,14 @@ public class ConsultaController {
      */
     @PostMapping("/remove/{id}")
     public String remove(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        if(consultaRep.existsById(id)){
-            consultaRep.deleteById(id);
-            redirectAttributes.addFlashAttribute("mensagemSucesso", "Consulta excluída com sucesso!");
+        Consulta consulta = consultaRep.findById(id).orElse(null);
+        if (consulta == null) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Não foi possível excluir a consulta.");
+        } else if (!podeGerenciarConsulta(consulta)) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Você não tem permissão para excluir esta consulta.");
         } else {
-            redirectAttributes.addFlashAttribute("mensagemErro", "Não foi possível excluir a consulta");
+            consultaRep.delete(consulta);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Consulta excluída com sucesso!");
         }
 
         return "redirect:/consulta/list";
@@ -98,6 +106,10 @@ public class ConsultaController {
             redirectAttributes.addFlashAttribute("mensagemErro", "Consulta não encontrada.");
             return new ModelAndView("redirect:/consulta/list");
         }
+        if (!podeGerenciarConsulta(consulta)) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Você não tem permissão para editar esta consulta.");
+            return new ModelAndView("redirect:/consulta/list");
+        }
 
         garantirRelacionamentos(consulta);
         model.addAttribute("consulta", consulta);
@@ -109,8 +121,17 @@ public class ConsultaController {
     @PostMapping("/update")
     public String update(@Valid Consulta consulta, BindingResult resultado, ModelMap model,
                          RedirectAttributes redirect) {
-        if (consulta.getId_consulta() == null || !consultaRep.existsById(consulta.getId_consulta())) {
-            resultado.reject("consulta.inexistente", "A consulta informada não existe mais.");
+        Consulta consultaPersistida = consulta.getId_consulta() == null
+                ? null
+                : consultaRep.findById(consulta.getId_consulta()).orElse(null);
+
+        if (consultaPersistida == null) {
+            redirect.addFlashAttribute("mensagemErro", "A consulta informada não existe mais.");
+            return "redirect:/consulta/list";
+        }
+        if (!podeGerenciarConsulta(consultaPersistida)) {
+            redirect.addFlashAttribute("mensagemErro", "Você não tem permissão para editar esta consulta.");
+            return "redirect:/consulta/list";
         }
         validarRelacionamentos(consulta, resultado);
 
@@ -138,6 +159,7 @@ public class ConsultaController {
         model.addObject("paciente", paciente);
         model.addObject("totalConsultas", listaFiltrada.size());
         model.addObject("valorTotal", calcularValorTotal(listaFiltrada));
+        model.addObject("consultasGerenciaveis", consultasGerenciaveis(listaFiltrada));
         model.setViewName("consulta/list");
 
         return model;
@@ -157,6 +179,7 @@ public class ConsultaController {
         model.addObject("medico", medico);
         model.addObject("totalConsultas", listaFiltrada.size());
         model.addObject("valorTotal", calcularValorTotal(listaFiltrada));
+        model.addObject("consultasGerenciaveis", consultasGerenciaveis(listaFiltrada));
         model.setViewName("consulta/list");
 
         return model;
@@ -172,6 +195,7 @@ public class ConsultaController {
         }
 
         model.addObject("consulta", consulta);
+        model.addObject("podeGerenciarConsulta", podeGerenciarConsulta(consulta));
         model.setViewName("consulta/detail");
 
         return model;
@@ -181,6 +205,36 @@ public class ConsultaController {
         return consultas.stream()
                 .map(Consulta::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private Set<Long> consultasGerenciaveis(List<Consulta> consultas) {
+        return consultas.stream()
+                .filter(this::podeGerenciarConsulta)
+                .map(Consulta::getId_consulta)
+                .collect(Collectors.toSet());
+    }
+
+    private boolean podeGerenciarConsulta(Consulta consulta) {
+        Authentication autenticacao = SecurityContextHolder.getContext().getAuthentication();
+        if (autenticacao == null || !autenticacao.isAuthenticated()) {
+            return false;
+        }
+        if (possuiPerfil(autenticacao, "ROLE_ADMIN")) {
+            return true;
+        }
+        if (!possuiPerfil(autenticacao, "ROLE_MEDICO")
+                || consulta.getMedico() == null || consulta.getMedico().getId() == null) {
+            return !possuiPerfil(autenticacao, "ROLE_MEDICO");
+        }
+
+        return medicoRep.findByEmailIgnoreCase(autenticacao.getName())
+                .map(medico -> medico.getId().equals(consulta.getMedico().getId()))
+                .orElse(false);
+    }
+
+    private boolean possuiPerfil(Authentication autenticacao, String perfil) {
+        return autenticacao.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals(perfil));
     }
 
     private void carregarDadosDoFormulario(ModelMap model) {

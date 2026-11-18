@@ -53,11 +53,13 @@
                 <td th:text="${'R$ ' + #numbers.formatDecimal(c.valor, 1, 'POINT', 2, 'COMMA')}"></td>
                 <td>
                     <div class="d-flex justify-content-center align-items-center gap-2">
-                        <a th:href="@{/consulta/edit/{id}(id=${c.id_consulta})}" class="btn btn-sm btn-outline-primary">
+                        <a th:if="${consultasGerenciaveis.contains(c.id_consulta)}"
+                           th:href="@{/consulta/edit/{id}(id=${c.id_consulta})}" class="btn btn-sm btn-outline-primary">
                             Editar
                         </a>
 
-                        <form th:action="@{/consulta/remove/{id}(id=${c.id_consulta})}" method="post" class="m-0 p-0">
+                        <form th:if="${consultasGerenciaveis.contains(c.id_consulta)}"
+                              th:action="@{/consulta/remove/{id}(id=${c.id_consulta})}" method="post" class="m-0 p-0">
                             <button type="submit"
                                     onclick="return confirm('Tem certeza que deseja excluir esta consulta?');"
                                     class="btn btn-sm btn-outline-danger">
