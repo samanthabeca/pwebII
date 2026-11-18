@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Meu Perfil</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5">
+        <h1>Meu Perfil</h1>
+
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <form th:action="@{/secretaria/perfil}" th:object="${secretaria}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+            </div>
+
+            <th:block th:replace="~{fragments/campos-pessoais :: camposPessoais(
+                placeholderNome='Digite seu nome',
+                placeholderCpf='Digite seu CPF',
+                placeholderEmail='Digite seu e-mail')}"></th:block>
+
+            <br/>
+
+            <input type="submit" value="Salvar" class="btn btn-primary">
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

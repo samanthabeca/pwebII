@@ -27,6 +27,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/pessoa/form").permitAll()
                         .requestMatchers(HttpMethod.POST, "/pessoa/save").permitAll()
                         .requestMatchers("/pessoa/list").hasRole("ADMIN")
+                        .requestMatchers("/secretaria/perfil").hasRole("SECRETARIA")
+                        .requestMatchers("/administrador/**", "/secretaria/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // demais requisições exigem usuário autenticado
                 )
                 .formLogin(form -> form

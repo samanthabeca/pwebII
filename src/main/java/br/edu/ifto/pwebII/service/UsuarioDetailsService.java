@@ -2,6 +2,8 @@ package br.edu.ifto.pwebII.service;
 
 import br.edu.ifto.pwebII.model.entity.Perfil;
 import br.edu.ifto.pwebII.model.entity.Usuario;
+import br.edu.ifto.pwebII.model.jdbc.repository.AdministradorRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.UsuarioRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioDetailsService implements UserDetailsService {
 
     private final UsuarioRepository repository;
+    private final AdministradorRepository administradorRepository;
+    private final SecretariaRepository secretariaRepository;
 
-    public UsuarioDetailsService(UsuarioRepository repository) {
+    public UsuarioDetailsService(UsuarioRepository repository, AdministradorRepository administradorRepository,
+                                 SecretariaRepository secretariaRepository) {
         this.repository = repository;
+        this.administradorRepository = administradorRepository;
+        this.secretariaRepository = secretariaRepository;
     }
 
     @Override
@@ -34,10 +41,18 @@ public class UsuarioDetailsService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + perfil.getNome()));
         }
 
-        return User.withUsername(usuario.getLogin())
+        UserDetails userDetails = User.withUsername(usuario.getLogin())
                 .password(usuario.getPassword())
                 .authorities(authorities)
                 .disabled(!usuario.isAtivo())
                 .build();
+
+        String nome = administradorRepository.findByEmailIgnoreCase(usuario.getLogin())
+                .map(administrador -> administrador.getNome())
+                .or(() -> secretariaRepository.findByEmailIgnoreCase(usuario.getLogin())
+                        .map(secretaria -> secretaria.getNome()))
+                .orElse(usuario.getLogin());
+
+        return new UsuarioAutenticado(nome, userDetails);
     }
 }
