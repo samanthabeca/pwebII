@@ -12,9 +12,7 @@
 
         <div th:replace="~{fragments/mensagens :: mensagens}"></div>
 
-        <form th:action="@{/secretaria/perfil}" th:object="${secretaria}" method="post">
-            <input type="hidden" th:field="*{id}">
-
+        <form th:action="@{/perfil}" th:object="${perfil}" method="post">
             <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
                 <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
             </div>
@@ -23,6 +21,22 @@
                 placeholderNome='Digite seu nome',
                 placeholderCpf='Digite seu CPF',
                 placeholderEmail='Digite seu e-mail')}"></th:block>
+
+            <div class="mb-3" th:if="${tipoPerfil == 'PACIENTE'}">
+                <label for="telefone" class="form-label">Telefone:</label>
+                <input type="text" th:field="*{telefone}" id="telefone" class="form-control"
+                       th:classappend="${#fields.hasErrors('telefone')} ? 'is-invalid' : ''"
+                       placeholder="Digite seu telefone" maxlength="11">
+                <div class="invalid-feedback" th:errors="*{telefone}"></div>
+            </div>
+
+            <div class="mb-3" th:if="${tipoPerfil == 'MEDICO'}">
+                <label for="crm" class="form-label">CRM:</label>
+                <input type="text" th:field="*{crm}" id="crm" class="form-control"
+                       th:classappend="${#fields.hasErrors('crm')} ? 'is-invalid' : ''"
+                       placeholder="Digite seu CRM" maxlength="9">
+                <div class="invalid-feedback" th:errors="*{crm}"></div>
+            </div>
 
             <br/>
 

@@ -42,15 +42,16 @@
                             Cadastrar
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a sec:authorize="hasAnyRole('ADMIN','SECRETARIA')" th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasAnyRole('ADMIN','SECRETARIA')" th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/form}" class="dropdown-item">➕ Cadastrar Administrador</a></li>
+                            <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
+                            <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
+                            <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')"><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/secretaria/form}" class="dropdown-item">➕ Cadastrar Secretária</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/form}" class="dropdown-item">➕ Cadastrar Administrador</a></li>
+
                         </ul>
                     </li>
                     <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" class="nav-item dropdown">
@@ -64,9 +65,9 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
-                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/list}" class="dropdown-item">📋 Listar Administradores</a></li>
-                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/secretaria/list}" class="dropdown-item">📋 Listar Secretárias</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/list}" class="dropdown-item">📋 Listar Administradores</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -79,7 +80,7 @@
             <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                 <button type="submit" class="btn btn-outline-secondary">Sair</button>
             </form>
-            <div sec:authorize="hasRole('SECRETARIA')" class="dropdown ms-2">
+            <div sec:authorize="isAuthenticated()" class="dropdown ms-2">
                 <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false" aria-label="Configurações">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
@@ -88,7 +89,7 @@
                     </svg>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a th:href="@{/secretaria/perfil}" class="dropdown-item">Meu perfil</a></li>
+                    <li><a th:href="@{/perfil}" class="dropdown-item">Meu perfil</a></li>
                 </ul>
             </div>
         </div>
