@@ -2,7 +2,6 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Secretaria;
 import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
-import br.edu.ifto.pwebII.model.jdbc.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -11,9 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,58 +23,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class SecretariaController {
 
     private final SecretariaRepository repository;
-    private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public SecretariaController(SecretariaRepository repository, UsuarioRepository usuarioRepository) {
+    public SecretariaController(SecretariaRepository repository) {
         this.repository = repository;
-        this.usuarioRepository = usuarioRepository;
     }
 
     @GetMapping("/form")
     public String form(Secretaria secretaria) {
         return "secretaria/form";
-    }
-
-    @GetMapping("/perfil")
-    public String perfil(@AuthenticationPrincipal UserDetails usuarioLogado, Model model) {
-        Secretaria secretaria = buscarSecretariaLogada(usuarioLogado);
-        model.addAttribute("secretaria", secretaria);
-        return "secretaria/perfil";
-    }
-
-    @PostMapping("/perfil")
-    public String atualizarPerfil(@AuthenticationPrincipal UserDetails usuarioLogado,
-                                  @Valid @ModelAttribute Secretaria secretaria,
-                                  BindingResult resultado,
-                                  RedirectAttributes redirectAttributes) {
-        String loginAtual = usuarioLogado.getUsername();
-        Secretaria secretariaLogada = buscarSecretariaLogada(usuarioLogado);
-        secretaria.setId(secretariaLogada.getId());
-        validarDadosUnicos(secretaria, resultado);
-
-        usuarioRepository.findByLogin(secretaria.getEmail())
-                .filter(usuario -> !usuario.getLogin().equalsIgnoreCase(loginAtual))
-                .ifPresent(usuario -> resultado.rejectValue("email", "secretaria.email.usuario.duplicado",
-                        "Já existe um usuário cadastrado com este e-mail."));
-
-        if (resultado.hasErrors()) {
-            return "secretaria/perfil";
-        }
-
-        secretariaLogada.setNome(secretaria.getNome());
-        secretariaLogada.setCpf(secretaria.getCpf());
-        secretariaLogada.setEmail(secretaria.getEmail());
-
-        usuarioRepository.findByLogin(loginAtual).ifPresent(usuario -> {
-            usuario.setLogin(secretaria.getEmail());
-            usuarioRepository.save(usuario);
-        });
-        repository.save(secretariaLogada);
-
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Perfil atualizado com sucesso!");
-        SecurityContextHolder.clearContext();
-        return "redirect:/login";
     }
 
     @GetMapping("/list")
@@ -158,10 +111,5 @@ public class SecretariaController {
                 .isPresent()) {
             resultado.rejectValue("email", "secretaria.email.duplicado", "Já existe uma secretária cadastrada com este e-mail.");
         }
-    }
-
-    private Secretaria buscarSecretariaLogada(UserDetails usuarioLogado) {
-        return repository.findByEmailIgnoreCase(usuarioLogado.getUsername())
-                .orElseThrow(() -> new IllegalStateException("Secretária não encontrada."));
     }
 }

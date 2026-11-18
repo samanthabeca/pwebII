@@ -25,13 +25,26 @@ INSERT INTO PERFIL (id, nome) VALUES (4, 'PACIENTE');
 
 INSERT INTO USUARIO (id, login, password, ativo) VALUES (1, 'sam@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
 INSERT INTO USUARIO (id, login, password, ativo) VALUES (2, 'paulo@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
-INSERT INTO USUARIO (id, login, password, ativo) VALUES (3, 'analima@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
-INSERT INTO USUARIO (id, login, password, ativo) VALUES (4, 'joana@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (3, 'rui@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (4, 'ana@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (5, 'bia@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (6, 'maria@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (7, 'derick@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (8, 'toni@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (9, 'analima@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
+INSERT INTO USUARIO (id, login, password, ativo) VALUES (10, 'joana@mail.com', '$2a$10$1VXXvG1MrK4PfM.YfxNTaeg0AYu2EWUNI3ZdkYu9R9cfe0cpZ337a', true);
 
 INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (1, '1');
 INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (2, '1');
-INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (3, '2');
-INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (4, '2');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (3, '4');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (4, '4');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (5, '4');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (6, '3');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (7, '1');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (7, '3');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (8, '3');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (9, '2');
+INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (10, '2');
 
 ALTER SEQUENCE pessoa_seq RESTART WITH 11;
 ALTER SEQUENCE tb_consulta_seq RESTART WITH 6;
