@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Cadastro de Secretária</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5">
+        <h1 th:text="${secretaria.id == null ? 'Cadastro de Secretária' : 'Edição de Secretária'}"></h1>
+
+        <form th:action="${secretaria.id == null} ? @{/secretaria/save} : @{/secretaria/update}"
+              th:object="${secretaria}"
+              method="post">
+
+            <input type="hidden" th:field="*{id}">
+
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+            </div>
+
+            <th:block th:replace="~{fragments/campos-pessoais :: camposPessoais(
+                placeholderNome='Digite o nome da secretária',
+                placeholderCpf='Digite o CPF da secretária',
+                placeholderEmail='Digite o e-mail da secretária')}"></th:block>
+
+            <br/>
+
+            <input type="submit" value="Enviar" class="btn btn-primary">
+            <a th:href="@{/secretaria/list}" class="btn btn-success">Listar</a>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

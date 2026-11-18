@@ -23,10 +23,12 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/css/**", "/js/**", "/imgs/**").permitAll()
                         .requestMatchers("/pessoa/form").permitAll()
                         .requestMatchers(HttpMethod.POST, "/pessoa/save").permitAll()
                         .requestMatchers("/pessoa/list").hasRole("ADMIN")
+                        .requestMatchers("/secretaria/perfil").hasRole("SECRETARIA")
+                        .requestMatchers("/administrador/**", "/secretaria/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // demais requisições exigem usuário autenticado
                 )
                 .formLogin(form -> form
@@ -43,22 +45,22 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails medico = User.withUsername("medico")
-                .password(passwordEncoder.encode("123"))
-                .roles("MEDICO")
-                .build();
-        UserDetails paciente = User.withUsername("paciente")
-                .password(passwordEncoder.encode("123"))
-                .roles("PACIENTE")
-                .build();
-        UserDetails admin = User.withUsername("admin")
-                .password(passwordEncoder.encode("admin"))
-                .roles("ADMIN", "MEDICO", "PACIENTE")
-                .build();
-        return new InMemoryUserDetailsManager(medico, paciente, admin);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+//        UserDetails medico = User.withUsername("medico")
+//                .password(passwordEncoder.encode("123"))
+//                .roles("MEDICO")
+//                .build();
+//        UserDetails paciente = User.withUsername("paciente")
+//                .password(passwordEncoder.encode("123"))
+//                .roles("PACIENTE")
+//                .build();
+//        UserDetails admin = User.withUsername("admin")
+//                .password(passwordEncoder.encode("admin"))
+//                .roles("ADMIN", "MEDICO", "PACIENTE")
+//                .build();
+//        return new InMemoryUserDetailsManager(medico, paciente, admin);
+//    }
 
     /**
      * Instancia o codificador BCrypt e deixa seu controle sob responsabilidade do Spring.

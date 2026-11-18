@@ -26,7 +26,7 @@
     <nav class="navbar navbar-expand-md bg-body-tertiary">
         <div class="container-fluid">
             <a class="navbar-brand" href="http://localhost:8080">
-                <img class="w-10" height="40px" src="/imgs/lisa.png"> Clínica Lisa Simpson</a>
+                <img class="w-10" height="100px" src="/imgs/logo.png"></a>
             <button class="navbar-toggler" type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent"
@@ -37,41 +37,60 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto">
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link active" aria-current="page" href="#">Home</a>-->
-<!--                    </li>-->
-                    <li sec:authorize="hasAnyRole('MEDICO','ADMIN')" class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Cadastrar
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
+                            <li><a sec:authorize="hasAnyRole('ADMIN','SECRETARIA')" th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasRole('ADMIN')" th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
+                            <li><a sec:authorize="hasAnyRole('ADMIN','SECRETARIA')" th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/form}" class="dropdown-item">➕ Cadastrar Administrador</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/secretaria/form}" class="dropdown-item">➕ Cadastrar Secretária</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" class="nav-item dropdown">
                         <button class="nav-link dropdown-toggle border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Listar
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" th:href="@{/paciente/list}" class="dropdown-item">📋 Listar Pacientes</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" th:href="@{/medico/list}" class="dropdown-item">📋 Listar Médico</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
+                            <li><a sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')" th:href="@{/consulta/list}" class="dropdown-item">📋 Listar Consulta</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/list}" class="dropdown-item">📋 Listar Administradores</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/secretaria/list}" class="dropdown-item">📋 Listar Secretárias</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
             <span sec:authorize="isAuthenticated()" class="pe-3">
-                Olá, <strong sec:authentication="name">usuário</strong>
+                Olá, <strong sec:authentication="principal.nome">usuário</strong>
             </span>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="link-entrar">Entrar</a>
+
             <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                 <button type="submit" class="btn btn-outline-secondary">Sair</button>
             </form>
+            <div sec:authorize="hasRole('SECRETARIA')" class="dropdown ms-2">
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false" aria-label="Configurações">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                         viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M9.405 1.05a1.58 1.58 0 0 0-2.81 0l-.208.522a5.6 5.6 0 0 0-1.35.56l-.512-.227a1.58 1.58 0 0 0-2.15 1.17l-.09.553a5.6 5.6 0 0 0-.94 1.12l-.545.05a1.58 1.58 0 0 0-1.35 1.85l.12.55a5.6 5.6 0 0 0-.35 1.42l-.46.3a1.58 1.58 0 0 0 0 2.74l.46.3a5.6 5.6 0 0 0 .35 1.42l-.12.55a1.58 1.58 0 0 0 1.35 1.85l.545.05a5.6 5.6 0 0 0 .94 1.12l.09.553a1.58 1.58 0 0 0 2.15 1.17l.512-.227a5.6 5.6 0 0 0 1.35.56l.208.522a1.58 1.58 0 0 0 2.81 0l.208-.522a5.6 5.6 0 0 0 1.35-.56l.512.227a1.58 1.58 0 0 0 2.15-1.17l.09-.553a5.6 5.6 0 0 0 .94-1.12l.545-.05a1.58 1.58 0 0 0 1.35-1.85l-.12-.55a5.6 5.6 0 0 0 .35-1.42l.46-.3a1.58 1.58 0 0 0 0-2.74l-.46-.3a5.6 5.6 0 0 0-.35-1.42l.12-.55a1.58 1.58 0 0 0-1.35-1.85l-.545-.05a5.6 5.6 0 0 0-.94-1.12l-.09-.553a1.58 1.58 0 0 0-2.15-1.17l-.512.227a5.6 5.6 0 0 0-1.35-.56zM8 5.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/>
+                    </svg>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a th:href="@{/secretaria/perfil}" class="dropdown-item">Meu perfil</a></li>
+                </ul>
+            </div>
         </div>
     </nav>
 
