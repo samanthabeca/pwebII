@@ -1,15 +1,43 @@
-.link-entrar,
-.link-entrar:visited,
-.link-entrar:focus,
-.link-entrar:active {
-    color: blue;
-    font-size: 20px;
-    font-weight: bold;
-    text-decoration: none;
-    /*text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.35);*/
+/* Cabeçalho exclusivo da tela de login. */
+.login-page .app-header {
+    width: 100%;
+    max-width: none;
+    padding: 0;
 }
 
-.link-entrar:hover {
-    color: #38b6ff;
-    font-size: 20px;
+.login-page .app-navbar {
+    min-height: 136px;
+    padding: 18px 0;
+    background-color: #fff !important;
+}
+
+.login-page .app-navbar .container-fluid {
+    width: calc(100% - 3rem);
+    max-width: 1440px;
+    min-height: 100px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.login-page .btn-entrar {
+    display: none;
+}
+
+.login-page .btn-outline-primary.ms-2 {
+    margin-left: 0 !important;
+}
+
+@media (max-width: 767.98px) {
+    .login-page .app-navbar {
+        min-height: auto;
+        padding: 12px 0;
+    }
+
+    .login-page .app-navbar .container-fluid {
+        width: calc(100% - 2rem);
+    }
+
+    .login-page .navbar-brand img {
+        height: 72px;
+    }
 }

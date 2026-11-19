@@ -23,7 +23,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/js/**", "/imgs/**").permitAll()
+                        .requestMatchers("/", "/css/**", "/js/**", "/imgs/**", "/h2-console/**").permitAll()
                         .requestMatchers("/pessoa/form").permitAll()
                         .requestMatchers(HttpMethod.POST, "/pessoa/save").permitAll()
                         .requestMatchers("/pessoa/list").hasRole("ADMIN")
@@ -35,6 +35,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/paciente/remove/**", "/medico/remove/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // demais requisições exigem usuário autenticado
                 )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .formLogin(form -> form
                         .loginPage("/login") // URL da página de login que criaremos
                         .defaultSuccessUrl("/", true)
