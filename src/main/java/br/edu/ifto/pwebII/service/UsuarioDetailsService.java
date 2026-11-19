@@ -1,11 +1,8 @@
 package br.edu.ifto.pwebII.service;
 
 import br.edu.ifto.pwebII.model.entity.Perfil;
+import br.edu.ifto.pwebII.model.entity.PessoaFisica;
 import br.edu.ifto.pwebII.model.entity.Usuario;
-import br.edu.ifto.pwebII.model.jdbc.repository.AdministradorRepository;
-import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
-import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
-import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.UsuarioRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioDetailsService implements UserDetailsService {
 
     private final UsuarioRepository repository;
-    private final AdministradorRepository administradorRepository;
-    private final SecretariaRepository secretariaRepository;
-    private final PacienteRepository pacienteRepository;
-    private final MedicoRepository medicoRepository;
 
-    public UsuarioDetailsService(UsuarioRepository repository, AdministradorRepository administradorRepository,
-                                 SecretariaRepository secretariaRepository, PacienteRepository pacienteRepository,
-                                 MedicoRepository medicoRepository) {
+    public UsuarioDetailsService(UsuarioRepository repository) {
         this.repository = repository;
-        this.administradorRepository = administradorRepository;
-        this.secretariaRepository = secretariaRepository;
-        this.pacienteRepository = pacienteRepository;
-        this.medicoRepository = medicoRepository;
     }
 
     @Override
@@ -54,15 +41,9 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .disabled(!usuario.isAtivo())
                 .build();
 
-        String nome = administradorRepository.findByEmailIgnoreCase(usuario.getLogin())
-                .map(administrador -> administrador.getNome())
-                .or(() -> secretariaRepository.findByEmailIgnoreCase(usuario.getLogin())
-                        .map(secretaria -> secretaria.getNome()))
-                .or(() -> pacienteRepository.findByEmailIgnoreCase(usuario.getLogin())
-                        .map(paciente -> paciente.getNome()))
-                .or(() -> medicoRepository.findByEmailIgnoreCase(usuario.getLogin())
-                        .map(medico -> medico.getNome()))
-                .orElse(usuario.getLogin());
+        String nome = usuario.getPessoa() instanceof PessoaFisica pessoa
+                ? pessoa.getNome()
+                : usuario.getLogin();
 
         return new UsuarioAutenticado(nome, userDetails);
     }

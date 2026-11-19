@@ -96,18 +96,19 @@ public class PacienteController {
             return "pessoa/form";
         }
 
-        Paciente paciente = new Paciente();
-        paciente.setNome(cadastro.getNome());
-        paciente.setCpf(cadastro.getCpf());
-        paciente.setEmail(cadastro.getEmail());
-        paciente.setTelefone(cadastro.getTelefone());
-        repository.save(paciente);
-
         Perfil perfilPaciente = perfilRepository.findByNome("PACIENTE")
                 .orElseThrow(() -> new IllegalStateException("Perfil de paciente não encontrado."));
         Usuario usuario = new Usuario(cadastro.getEmail(), passwordEncoder.encode(cadastro.getSenha()));
         usuario.adicionarPerfil(perfilPaciente);
         usuarioRepository.save(usuario);
+
+        Paciente paciente = new Paciente();
+        paciente.setNome(cadastro.getNome());
+        paciente.setCpf(cadastro.getCpf());
+        paciente.setEmail(cadastro.getEmail());
+        paciente.setTelefone(cadastro.getTelefone());
+        paciente.associarUsuario(usuario);
+        repository.save(paciente);
 
         redirectAttributes.addFlashAttribute("mensagemSucesso",
                 "Conta criada com sucesso. Faça login para continuar.");
