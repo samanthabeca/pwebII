@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Criar Conta</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <h1>Criar Conta de Paciente</h1>
+                <p class="text-muted">Cadastre-se para acessar o sistema como paciente.</p>
+
+                <form th:action="@{/pessoa/save}" th:object="${cadastro}" method="post">
+                    <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                        <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+                    </div>
+
+                    <th:block th:replace="~{fragments/campos-pessoais :: camposPessoais(
+                        placeholderNome='Digite seu nome completo',
+                        placeholderCpf='Digite seu CPF',
+                        placeholderEmail='Digite seu e-mail')}"></th:block>
+
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">Telefone:</label>
+                        <input type="text" th:field="*{telefone}" id="telefone" class="form-control"
+                               th:classappend="${#fields.hasErrors('telefone')} ? 'is-invalid' : ''"
+                               placeholder="Digite seu telefone" maxlength="11">
+                        <div class="invalid-feedback" th:errors="*{telefone}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Senha:</label>
+                        <input type="password" th:field="*{senha}" id="senha" class="form-control"
+                               th:classappend="${#fields.hasErrors('senha')} ? 'is-invalid' : ''"
+                               autocomplete="new-password">
+                        <div class="invalid-feedback" th:errors="*{senha}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmacaoSenha" class="form-label">Confirmar senha:</label>
+                        <input type="password" th:field="*{confirmacaoSenha}" id="confirmacaoSenha" class="form-control"
+                               th:classappend="${#fields.hasErrors('confirmacaoSenha')} ? 'is-invalid' : ''"
+                               autocomplete="new-password">
+                        <div class="invalid-feedback" th:errors="*{confirmacaoSenha}"></div>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('senhaConfirmada')}"
+                             th:errors="*{senhaConfirmada}"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Criar Conta</button>
+                    <a th:href="@{/login}" class="btn btn-outline-secondary">Já tenho uma conta</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -2,11 +2,19 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Consulta;
 import br.edu.ifto.pwebII.model.entity.Paciente;
+import br.edu.ifto.pwebII.model.entity.Perfil;
+import br.edu.ifto.pwebII.model.entity.Usuario;
+import br.edu.ifto.pwebII.model.dto.CadastroPacienteForm;
+import br.edu.ifto.pwebII.model.jdbc.repository.AdministradorRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.PerfilRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,25 +26,43 @@ import java.util.Objects;
 
 @Transactional
 @Controller
-@RequestMapping("paciente")
 public class PacienteController {
 
     private final PacienteRepository repository;
     private final ConsultaRepository consultaRep;
+    private final AdministradorRepository administradorRepository;
+    private final SecretariaRepository secretariaRepository;
+    private final MedicoRepository medicoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    // O Spring injetará o repositório automaticamente
-    @Autowired
-    public PacienteController(PacienteRepository repository, ConsultaRepository consultaRep) {
+    public PacienteController(PacienteRepository repository, ConsultaRepository consultaRep,
+                              AdministradorRepository administradorRepository,
+                              SecretariaRepository secretariaRepository, MedicoRepository medicoRepository,
+                              UsuarioRepository usuarioRepository, PerfilRepository perfilRepository,
+                              PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.consultaRep = consultaRep;
+        this.administradorRepository = administradorRepository;
+        this.secretariaRepository = secretariaRepository;
+        this.medicoRepository = medicoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.perfilRepository = perfilRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/form")
+    @GetMapping("/paciente/form")
     public String form(Paciente paciente){
         return "paciente/form";
     }
 
-    @GetMapping("/list")
+    @GetMapping("/pessoa/form")
+    public String formCadastro(@ModelAttribute("cadastro") CadastroPacienteForm cadastro) {
+        return "pessoa/form";
+    }
+
+    @GetMapping("/paciente/list")
     public String listar(Model model) {
         List<Paciente> pacientes = repository.findAll();
         model.addAttribute("paciente", pacientes);
@@ -44,7 +70,7 @@ public class PacienteController {
         return "paciente/list";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/paciente/save")
     public String save(@Valid @ModelAttribute Paciente paciente, BindingResult resultado,
                        RedirectAttributes redirectAttribute) {
         if (paciente.getId() != null) {
@@ -61,7 +87,34 @@ public class PacienteController {
         return "redirect:/paciente/list";
     }
 
-    @PostMapping("/remove/{id}")
+    @PostMapping("/pessoa/save")
+    public String cadastrarVisitante(@Valid @ModelAttribute("cadastro") CadastroPacienteForm cadastro,
+                                     BindingResult resultado, RedirectAttributes redirectAttributes) {
+        validarDadosUnicosCadastro(cadastro, resultado);
+
+        if (resultado.hasErrors()) {
+            return "pessoa/form";
+        }
+
+        Paciente paciente = new Paciente();
+        paciente.setNome(cadastro.getNome());
+        paciente.setCpf(cadastro.getCpf());
+        paciente.setEmail(cadastro.getEmail());
+        paciente.setTelefone(cadastro.getTelefone());
+        repository.save(paciente);
+
+        Perfil perfilPaciente = perfilRepository.findByNome("PACIENTE")
+                .orElseThrow(() -> new IllegalStateException("Perfil de paciente não encontrado."));
+        Usuario usuario = new Usuario(cadastro.getEmail(), passwordEncoder.encode(cadastro.getSenha()));
+        usuario.adicionarPerfil(perfilPaciente);
+        usuarioRepository.save(usuario);
+
+        redirectAttributes.addFlashAttribute("mensagemSucesso",
+                "Conta criada com sucesso. Faça login para continuar.");
+        return "redirect:/login";
+    }
+
+    @PostMapping("/paciente/remove/{id}")
     public String remove(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         Paciente paciente = repository.findById(id).orElse(null);
         if (paciente == null) {
@@ -83,7 +136,7 @@ public class PacienteController {
         return "redirect:/paciente/list";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/paciente/edit/{id}")
     public String edit(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         Paciente paciente = repository.findById(id).orElse(null);
         if (paciente == null) {
@@ -95,7 +148,7 @@ public class PacienteController {
         return "paciente/form";
     }
 
-    @PostMapping("/update")
+    @PostMapping("/paciente/update")
     public String update(@Valid @ModelAttribute Paciente paciente, BindingResult resultado) {
         if (paciente.getId() == null || !repository.existsById(paciente.getId())) {
             resultado.reject("paciente.inexistente", "O paciente informado não existe mais.");
@@ -122,5 +175,30 @@ public class PacienteController {
                 .isPresent()) {
             resultado.rejectValue("email", "paciente.email.duplicado", "Já existe um paciente cadastrado com este e-mail.");
         }
+    }
+
+    private void validarDadosUnicosCadastro(CadastroPacienteForm cadastro, BindingResult resultado) {
+        if (!resultado.hasFieldErrors("cpf") && cpfJaCadastrado(cadastro.getCpf())) {
+            resultado.rejectValue("cpf", "cadastro.cpf.duplicado", "Já existe uma pessoa cadastrada com este CPF.");
+        }
+
+        if (!resultado.hasFieldErrors("email") && emailJaCadastrado(cadastro.getEmail())) {
+            resultado.rejectValue("email", "cadastro.email.duplicado", "Já existe uma conta cadastrada com este e-mail.");
+        }
+    }
+
+    private boolean cpfJaCadastrado(String cpf) {
+        return administradorRepository.findByCpf(cpf).isPresent()
+                || secretariaRepository.findByCpf(cpf).isPresent()
+                || repository.findByCpf(cpf).isPresent()
+                || medicoRepository.findByCpf(cpf).isPresent();
+    }
+
+    private boolean emailJaCadastrado(String email) {
+        return usuarioRepository.findByLogin(email).isPresent()
+                || administradorRepository.findByEmailIgnoreCase(email).isPresent()
+                || secretariaRepository.findByEmailIgnoreCase(email).isPresent()
+                || repository.findByEmailIgnoreCase(email).isPresent()
+                || medicoRepository.findByEmailIgnoreCase(email).isPresent();
     }
 }

@@ -1,29 +1,6 @@
-<header class="container" th:fragment="header" xmlns:sec="http://www.w3.org/1999/xhtml">
+<header class="container app-header" th:fragment="header" xmlns:sec="http://www.w3.org/1999/xhtml">
 
-<!--    <h1 class="mb-4 mt-4">Painel de Navegação</h1>-->
-
-<!--    <div class="list-group col-md-6">-->
-<!--        <a th:href="@{/paciente/form}" class="list-group-item list-group-item-action">-->
-<!--            ➕ Cadastrar Paciente-->
-<!--        </a>-->
-<!--        <a th:href="@{/medico/form}" class="list-group-item list-group-item-action">-->
-<!--            ➕ Cadastrar Médico-->
-<!--        </a>-->
-<!--        <a th:href="@{/consulta/form}" class="list-group-item list-group-item-action">-->
-<!--            ➕ Cadastrar Consulta-->
-<!--        </a>-->
-<!--        <a th:href="@{/paciente/list}" class="list-group-item list-group-item-action">-->
-<!--            📋 Listar Pacientes-->
-<!--        </a>-->
-<!--        <a th:href="@{/medico/list}" class="list-group-item list-group-item-action">-->
-<!--            📋 Listar Médicos-->
-<!--        </a>-->
-<!--        <a th:href="@{/consulta/list}" class="list-group-item list-group-item-action">-->
-<!--            📋 Listar Consultas-->
-<!--        </a>-->
-<!--    </div>-->
-
-    <nav class="navbar navbar-expand-md bg-body-tertiary">
+    <nav class="navbar navbar-expand-md bg-body-tertiary app-navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="http://localhost:8080">
                 <img class="w-10" height="100px" src="/imgs/logo.png"></a>
@@ -75,7 +52,9 @@
             <span sec:authorize="isAuthenticated()" class="pe-3">
                 Olá, <strong sec:authentication="principal.nome">usuário</strong>
             </span>
-            <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="link-entrar">Entrar</a>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-primary btn-entrar">Entrar</a>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/pessoa/form}"
+               class="btn btn-outline-primary ms-2">Criar Conta</a>
 
             <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
                 <button type="submit" class="btn btn-outline-secondary">Sair</button>
