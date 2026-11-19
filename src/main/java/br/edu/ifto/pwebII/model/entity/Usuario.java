@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Usuario {
@@ -25,6 +26,9 @@ public class Usuario {
     private String password; // hash BCrypt, nunca a senha em texto puro
 
     private boolean ativo = true;
+
+    @OneToOne(mappedBy = "usuario")
+    private Pessoa pessoa;
 
     @ManyToMany
     @JoinTable(name = "usuario_perfil", // opcional: apenas explicita a tabela de associação
@@ -58,4 +62,7 @@ public class Usuario {
     public void setAtivo(boolean ativo) { this.ativo = ativo; }
 
     public List<Perfil> getPerfis() { return perfis; }
+
+    public Pessoa getPessoa() { return pessoa; }
+    public void setPessoa(Pessoa pessoa) { this.pessoa = pessoa; }
 }

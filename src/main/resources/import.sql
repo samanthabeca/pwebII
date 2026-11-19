@@ -46,6 +46,17 @@ INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (8, '3');
 INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (9, '2');
 INSERT INTO USUARIO_PERFIL (usuario_id, perfil_id) VALUES (10, '2');
 
+UPDATE TB_ADMINISTRADOR SET usuario_id = 1 WHERE id = 1;
+UPDATE TB_ADMINISTRADOR SET usuario_id = 2 WHERE id = 2;
+UPDATE TB_PACIENTE SET usuario_id = 3 WHERE id = 3;
+UPDATE TB_PACIENTE SET usuario_id = 4 WHERE id = 4;
+UPDATE TB_PACIENTE SET usuario_id = 5 WHERE id = 5;
+UPDATE TB_MEDICO SET usuario_id = 6 WHERE id = 6;
+UPDATE TB_MEDICO SET usuario_id = 7 WHERE id = 7;
+UPDATE TB_MEDICO SET usuario_id = 8 WHERE id = 8;
+UPDATE TB_SECRETARIA SET usuario_id = 9 WHERE id = 9;
+UPDATE TB_SECRETARIA SET usuario_id = 10 WHERE id = 10;
+
 ALTER SEQUENCE pessoa_seq RESTART WITH 11;
 ALTER SEQUENCE tb_consulta_seq RESTART WITH 6;
 ALTER TABLE usuario ALTER COLUMN id RESTART WITH 11;

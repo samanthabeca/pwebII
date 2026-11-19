@@ -20,6 +20,10 @@ public abstract class Pessoa implements Serializable {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @OneToOne
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
+
     public Long getId() {
         return id;
     }
@@ -34,5 +38,14 @@ public abstract class Pessoa implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void associarUsuario(Usuario usuario) {
+        this.usuario = usuario;
+        usuario.setPessoa(this);
     }
 }
