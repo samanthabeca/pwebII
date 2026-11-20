@@ -24,8 +24,9 @@ public class SecurityConfiguration {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/js/**", "/imgs/**", "/h2-console/**").permitAll()
-                        .requestMatchers("/pessoa/form").permitAll()
+                        .requestMatchers("/pessoa/form", "/definir-senha").permitAll()
                         .requestMatchers(HttpMethod.POST, "/pessoa/save").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/definir-senha").permitAll()
                         .requestMatchers("/pessoa/list").hasRole("ADMIN")
                         .requestMatchers("/perfil/**").authenticated()
                         .requestMatchers("/administrador/**", "/secretaria/**").hasRole("ADMIN")

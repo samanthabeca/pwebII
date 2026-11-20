@@ -1,6 +1,7 @@
 package br.edu.ifto.pwebII.model.entity;
 
 import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +27,11 @@ public class Usuario {
     private String password; // hash BCrypt, nunca a senha em texto puro
 
     private boolean ativo = true;
+
+    @Column(name = "token_definicao_senha", unique = true, length = 36)
+    private String tokenDefinicaoSenha;
+
+    private Instant expiracaoTokenDefinicaoSenha;
 
     @OneToOne(mappedBy = "usuario")
     private Pessoa pessoa;
@@ -60,6 +66,14 @@ public class Usuario {
 
     public boolean isAtivo() { return ativo; }
     public void setAtivo(boolean ativo) { this.ativo = ativo; }
+
+    public String getTokenDefinicaoSenha() { return tokenDefinicaoSenha; }
+    public void setTokenDefinicaoSenha(String tokenDefinicaoSenha) { this.tokenDefinicaoSenha = tokenDefinicaoSenha; }
+
+    public Instant getExpiracaoTokenDefinicaoSenha() { return expiracaoTokenDefinicaoSenha; }
+    public void setExpiracaoTokenDefinicaoSenha(Instant expiracaoTokenDefinicaoSenha) {
+        this.expiracaoTokenDefinicaoSenha = expiracaoTokenDefinicaoSenha;
+    }
 
     public List<Perfil> getPerfis() { return perfis; }
 
