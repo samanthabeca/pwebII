@@ -2,6 +2,7 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Administrador;
 import br.edu.ifto.pwebII.model.jdbc.repository.AdministradorRepository;
+import br.edu.ifto.pwebII.service.CredencialAcessoService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -23,10 +24,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AdministradorController {
 
     private final AdministradorRepository repository;
+    private final CredencialAcessoService credencialAcessoService;
 
     @Autowired
-    public AdministradorController(AdministradorRepository repository) {
+    public AdministradorController(AdministradorRepository repository, CredencialAcessoService credencialAcessoService) {
         this.repository = repository;
+        this.credencialAcessoService = credencialAcessoService;
     }
 
     @GetMapping("/form")
@@ -54,8 +57,9 @@ public class AdministradorController {
             return "administrador/form";
         }
 
+        credencialAcessoService.criarCredencial(administrador, "ADMIN");
         repository.save(administrador);
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Administrador cadastrado com sucesso!");
+        redirectAttributes.addFlashAttribute("mensagemSucesso", "Administrador cadastrado. O link para definir a senha foi enviado por e-mail.");
         return "redirect:/administrador/list";
     }
 
@@ -86,7 +90,9 @@ public class AdministradorController {
 
     @PostMapping("/update")
     public String update(@Valid @ModelAttribute Administrador administrador, BindingResult resultado) {
-        if (administrador.getId() == null || !repository.existsById(administrador.getId())) {
+        Administrador administradorExistente = administrador.getId() == null ? null
+                : repository.findById(administrador.getId()).orElse(null);
+        if (administradorExistente == null) {
             resultado.reject("administrador.inexistente", "O administrador informado não existe mais.");
         }
         validarDadosUnicos(administrador, resultado);
@@ -95,7 +101,12 @@ public class AdministradorController {
             return "administrador/form";
         }
 
-        repository.save(administrador);
+        String emailAnterior = administradorExistente.getEmail();
+        administradorExistente.setNome(administrador.getNome());
+        administradorExistente.setCpf(administrador.getCpf());
+        administradorExistente.setEmail(administrador.getEmail());
+        credencialAcessoService.sincronizarUsuario(administradorExistente, emailAnterior);
+        repository.save(administradorExistente);
         return "redirect:/administrador/list";
     }
 

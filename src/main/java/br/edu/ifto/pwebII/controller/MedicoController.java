@@ -4,6 +4,7 @@ import br.edu.ifto.pwebII.model.entity.Consulta;
 import br.edu.ifto.pwebII.model.entity.Medico;
 import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
+import br.edu.ifto.pwebII.service.CredencialAcessoService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,15 @@ public class MedicoController {
 
     private final MedicoRepository repository;
     private final ConsultaRepository consultaRep;
+    private final CredencialAcessoService credencialAcessoService;
 
     // O Spring injetará o repositório automaticamente
     @Autowired
-    public MedicoController(MedicoRepository repository, ConsultaRepository consultaRep) {
+    public MedicoController(MedicoRepository repository, ConsultaRepository consultaRep,
+                            CredencialAcessoService credencialAcessoService) {
         this.repository = repository;
         this.consultaRep = consultaRep;
+        this.credencialAcessoService = credencialAcessoService;
     }
 
     @GetMapping("/form")
@@ -56,8 +60,9 @@ public class MedicoController {
             return "medico/form";
         }
 
+        credencialAcessoService.criarCredencial(medico, "MEDICO");
         repository.save(medico);
-        redirectAttribute.addFlashAttribute("mensagemSucesso", "Médico cadastrado com sucesso!");
+        redirectAttribute.addFlashAttribute("mensagemSucesso", "Médico cadastrado. O link para definir a senha foi enviado por e-mail.");
         return "redirect:/medico/list";
     }
 
@@ -97,7 +102,8 @@ public class MedicoController {
 
     @PostMapping("/update")
     public String update(@Valid @ModelAttribute Medico medico, BindingResult resultado) {
-        if (medico.getId() == null || !repository.existsById(medico.getId())) {
+        Medico medicoExistente = medico.getId() == null ? null : repository.findById(medico.getId()).orElse(null);
+        if (medicoExistente == null) {
             resultado.reject("medico.inexistente", "O médico informado não existe mais.");
         }
         validarDadosUnicos(medico, resultado);
@@ -106,7 +112,13 @@ public class MedicoController {
             return "medico/form";
         }
 
-        repository.save(medico);
+        String emailAnterior = medicoExistente.getEmail();
+        medicoExistente.setNome(medico.getNome());
+        medicoExistente.setCpf(medico.getCpf());
+        medicoExistente.setEmail(medico.getEmail());
+        medicoExistente.setCrm(medico.getCrm());
+        credencialAcessoService.sincronizarUsuario(medicoExistente, emailAnterior);
+        repository.save(medicoExistente);
         return "redirect:/medico/list";
     }
 

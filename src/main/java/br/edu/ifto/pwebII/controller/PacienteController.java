@@ -2,19 +2,16 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Consulta;
 import br.edu.ifto.pwebII.model.entity.Paciente;
-import br.edu.ifto.pwebII.model.entity.Perfil;
-import br.edu.ifto.pwebII.model.entity.Usuario;
 import br.edu.ifto.pwebII.model.dto.CadastroPacienteForm;
 import br.edu.ifto.pwebII.model.jdbc.repository.AdministradorRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
-import br.edu.ifto.pwebII.model.jdbc.repository.PerfilRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.UsuarioRepository;
+import br.edu.ifto.pwebII.service.CredencialAcessoService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,22 +31,19 @@ public class PacienteController {
     private final SecretariaRepository secretariaRepository;
     private final MedicoRepository medicoRepository;
     private final UsuarioRepository usuarioRepository;
-    private final PerfilRepository perfilRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final CredencialAcessoService credencialAcessoService;
 
     public PacienteController(PacienteRepository repository, ConsultaRepository consultaRep,
                               AdministradorRepository administradorRepository,
                               SecretariaRepository secretariaRepository, MedicoRepository medicoRepository,
-                              UsuarioRepository usuarioRepository, PerfilRepository perfilRepository,
-                              PasswordEncoder passwordEncoder) {
+                              UsuarioRepository usuarioRepository, CredencialAcessoService credencialAcessoService) {
         this.repository = repository;
         this.consultaRep = consultaRep;
         this.administradorRepository = administradorRepository;
         this.secretariaRepository = secretariaRepository;
         this.medicoRepository = medicoRepository;
         this.usuarioRepository = usuarioRepository;
-        this.perfilRepository = perfilRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.credencialAcessoService = credencialAcessoService;
     }
 
     @GetMapping("/paciente/form")
@@ -82,8 +76,9 @@ public class PacienteController {
             return "paciente/form";
         }
 
+        credencialAcessoService.criarCredencial(paciente, "PACIENTE");
         repository.save(paciente);
-        redirectAttribute.addFlashAttribute("mensagemSucesso", "Paciente cadastrado com sucesso!");
+        redirectAttribute.addFlashAttribute("mensagemSucesso", "Paciente cadastrado. O link para definir a senha foi enviado por e-mail.");
         return "redirect:/paciente/list";
     }
 
@@ -96,22 +91,16 @@ public class PacienteController {
             return "pessoa/form";
         }
 
-        Perfil perfilPaciente = perfilRepository.findByNome("PACIENTE")
-                .orElseThrow(() -> new IllegalStateException("Perfil de paciente não encontrado."));
-        Usuario usuario = new Usuario(cadastro.getEmail(), passwordEncoder.encode(cadastro.getSenha()));
-        usuario.adicionarPerfil(perfilPaciente);
-        usuarioRepository.save(usuario);
-
         Paciente paciente = new Paciente();
         paciente.setNome(cadastro.getNome());
         paciente.setCpf(cadastro.getCpf());
         paciente.setEmail(cadastro.getEmail());
         paciente.setTelefone(cadastro.getTelefone());
-        paciente.associarUsuario(usuario);
+        credencialAcessoService.criarCredencial(paciente, "PACIENTE");
         repository.save(paciente);
 
         redirectAttributes.addFlashAttribute("mensagemSucesso",
-                "Conta criada com sucesso. Faça login para continuar.");
+                "Conta criada. Confira seu e-mail para definir a senha de acesso.");
         return "redirect:/login";
     }
 
@@ -151,7 +140,8 @@ public class PacienteController {
 
     @PostMapping("/paciente/update")
     public String update(@Valid @ModelAttribute Paciente paciente, BindingResult resultado) {
-        if (paciente.getId() == null || !repository.existsById(paciente.getId())) {
+        Paciente pacienteExistente = paciente.getId() == null ? null : repository.findById(paciente.getId()).orElse(null);
+        if (pacienteExistente == null) {
             resultado.reject("paciente.inexistente", "O paciente informado não existe mais.");
         }
         validarDadosUnicos(paciente, resultado);
@@ -160,7 +150,13 @@ public class PacienteController {
             return "paciente/form";
         }
 
-        repository.save(paciente);
+        String emailAnterior = pacienteExistente.getEmail();
+        pacienteExistente.setNome(paciente.getNome());
+        pacienteExistente.setCpf(paciente.getCpf());
+        pacienteExistente.setEmail(paciente.getEmail());
+        pacienteExistente.setTelefone(paciente.getTelefone());
+        credencialAcessoService.sincronizarUsuario(pacienteExistente, emailAnterior);
+        repository.save(pacienteExistente);
         return "redirect:/paciente/list";
     }
 

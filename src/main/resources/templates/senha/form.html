@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Definir Senha</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <h1>Definir senha</h1>
+                <form th:action="@{/definir-senha}" th:object="${definirSenha}" method="post">
+                    <input type="hidden" th:field="*{token}">
+                    <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                        <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Nova senha:</label>
+                        <input id="senha" type="password" th:field="*{senha}" class="form-control"
+                               th:classappend="${#fields.hasErrors('senha')} ? 'is-invalid' : ''"
+                               autocomplete="new-password">
+                        <div class="invalid-feedback" th:errors="*{senha}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmacaoSenha" class="form-label">Confirmar senha:</label>
+                        <input id="confirmacaoSenha" type="password" th:field="*{confirmacaoSenha}" class="form-control"
+                               th:classappend="${#fields.hasErrors('confirmacaoSenha')} ? 'is-invalid' : ''"
+                               autocomplete="new-password">
+                        <div class="invalid-feedback" th:errors="*{confirmacaoSenha}"></div>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('senhaConfirmada')}"
+                             th:errors="*{senhaConfirmada}"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Definir senha</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

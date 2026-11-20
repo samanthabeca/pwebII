@@ -2,6 +2,7 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Secretaria;
 import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
+import br.edu.ifto.pwebII.service.CredencialAcessoService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -23,10 +24,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class SecretariaController {
 
     private final SecretariaRepository repository;
+    private final CredencialAcessoService credencialAcessoService;
 
     @Autowired
-    public SecretariaController(SecretariaRepository repository) {
+    public SecretariaController(SecretariaRepository repository, CredencialAcessoService credencialAcessoService) {
         this.repository = repository;
+        this.credencialAcessoService = credencialAcessoService;
     }
 
     @GetMapping("/form")
@@ -54,8 +57,9 @@ public class SecretariaController {
             return "secretaria/form";
         }
 
+        credencialAcessoService.criarCredencial(secretaria, "SECRETARIA");
         repository.save(secretaria);
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Secretária cadastrada com sucesso!");
+        redirectAttributes.addFlashAttribute("mensagemSucesso", "Secretária cadastrada. O link para definir a senha foi enviado por e-mail.");
         return "redirect:/secretaria/list";
     }
 
@@ -86,7 +90,9 @@ public class SecretariaController {
 
     @PostMapping("/update")
     public String update(@Valid @ModelAttribute Secretaria secretaria, BindingResult resultado) {
-        if (secretaria.getId() == null || !repository.existsById(secretaria.getId())) {
+        Secretaria secretariaExistente = secretaria.getId() == null ? null
+                : repository.findById(secretaria.getId()).orElse(null);
+        if (secretariaExistente == null) {
             resultado.reject("secretaria.inexistente", "A secretária informada não existe mais.");
         }
         validarDadosUnicos(secretaria, resultado);
@@ -95,7 +101,12 @@ public class SecretariaController {
             return "secretaria/form";
         }
 
-        repository.save(secretaria);
+        String emailAnterior = secretariaExistente.getEmail();
+        secretariaExistente.setNome(secretaria.getNome());
+        secretariaExistente.setCpf(secretaria.getCpf());
+        secretariaExistente.setEmail(secretaria.getEmail());
+        credencialAcessoService.sincronizarUsuario(secretariaExistente, emailAnterior);
+        repository.save(secretariaExistente);
         return "redirect:/secretaria/list";
     }
 
