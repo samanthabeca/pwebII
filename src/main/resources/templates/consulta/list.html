@@ -38,6 +38,7 @@
                 <th>Médico</th>
                 <th>Paciente</th>
                 <th>Valor</th>
+                <th>Status</th>
                 <th class="text-center" style="width: 200px;">Ações</th>
             </tr>
             </thead>
@@ -51,6 +52,7 @@
                 <td th:text="${c.paciente != null ? c.paciente.nome : 'Sem Paciente'}"></td>
                 <!-- Formatação de moeda em R$ -->
                 <td th:text="${'R$ ' + #numbers.formatDecimal(c.valor, 1, 'POINT', 2, 'COMMA')}"></td>
+                <td th:text="${c.status.descricao}"></td>
                 <td>
                     <div class="d-flex justify-content-center align-items-center gap-2">
                         <a th:if="${consultasGerenciaveis.contains(c.id_consulta)}"
@@ -77,7 +79,7 @@
         </table>
 
         <div class="mt-3">
-            <a sec:authorize="hasAnyRole('MEDICO','ADMIN')" th:href="@{/consulta/form}" class="btn btn-primary">Cadastrar</a>
+            <a sec:authorize="hasAnyRole('MEDICO','SECRETARIA')" th:href="@{/consulta/form}" class="btn btn-primary">Cadastrar</a>
             <a th:if="${paciente != null}" th:href="@{/paciente/list}"
                class="btn btn-success">Voltar</a>
             <a th:if="${medico != null}" th:href="@{/medico/list}"

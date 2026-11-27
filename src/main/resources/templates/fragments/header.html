@@ -23,7 +23,7 @@
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
-                            <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')"><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
+                            <li sec:authorize="hasAnyRole('MEDICO','SECRETARIA')"><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/secretaria/form}" class="dropdown-item">➕ Cadastrar Secretária</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
