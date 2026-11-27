@@ -12,11 +12,11 @@ INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (8, '12345678906', 'Ant
 INSERT INTO TB_SECRETARIA (id, cpf, nome, email) VALUES (9, '12345678909', 'Ana Lima', 'analima@mail.com');
 INSERT INTO TB_SECRETARIA (id, cpf, nome, email) VALUES (10, '12345678910', 'Joana Alves', 'joana@mail.com');
 
-INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (1, '2026-08-20T15:30', 500.0, 'Hipertensão', 7, 3);
-INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (2, '2026-08-21T16:30', 1500.0, 'Implanon', 6, 4);
-INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (3, '2026-08-24T17:00', 500.0, 'Hipertensão', 8, 5);
-INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (4, '2026-08-24T17:30', 700.0, 'Enjoo', 7, 4);
-INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (5, '2026-08-25T09:20', 700.0, 'Procedimento na pele', 6, 5);
+-- INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (1, '2026-08-20T15:30', 500.0, 'Hipertensão', 7, 3);
+-- INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (2, '2026-08-21T16:30', 1500.0, 'Implanon', 6, 4);
+-- INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (3, '2026-08-24T17:00', 500.0, 'Hipertensão', 8, 5);
+-- INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (4, '2026-08-24T17:30', 700.0, 'Enjoo', 7, 4);
+-- INSERT INTO TB_CONSULTA (id_consulta, data, valor, observacao, id_medico, id_paciente) VALUES (5, '2026-08-25T09:20', 700.0, 'Procedimento na pele', 6, 5);
 
 INSERT INTO PERFIL (id, nome) VALUES (1, 'ADMIN');
 INSERT INTO PERFIL (id, nome) VALUES (2, 'SECRETARIA');
@@ -58,5 +58,5 @@ UPDATE TB_SECRETARIA SET usuario_id = 9 WHERE id = 9;
 UPDATE TB_SECRETARIA SET usuario_id = 10 WHERE id = 10;
 
 ALTER SEQUENCE pessoa_seq RESTART WITH 11;
-ALTER SEQUENCE tb_consulta_seq RESTART WITH 6;
+-- ALTER SEQUENCE tb_consulta_seq RESTART WITH 6;
 ALTER TABLE usuario ALTER COLUMN id RESTART WITH 11;
