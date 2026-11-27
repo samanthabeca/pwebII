@@ -20,6 +20,9 @@ public class Medico extends PessoaFisica {
     @OneToMany(mappedBy = "medico")
     private List<Consulta> consultas = new ArrayList<>();
 
+    @OneToMany(mappedBy = "medico")
+    private List<Agenda> agendas = new ArrayList<>();
+
     public String getCrm() {
         return crm;
     }
@@ -34,5 +37,13 @@ public class Medico extends PessoaFisica {
 
     public void setConsultas(List<Consulta> consultas) {
         this.consultas = consultas;
+    }
+
+    public List<Agenda> getAgendas() {
+        return agendas;
+    }
+
+    public void setAgendas(List<Agenda> agendas) {
+        this.agendas = agendas;
     }
 }

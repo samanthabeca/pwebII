@@ -20,6 +20,9 @@ import java.util.List;
         @OneToMany(mappedBy = "paciente")
         private List<Consulta> consultas = new ArrayList<>();
 
+        @OneToMany(mappedBy = "paciente")
+        private List<Agendamento> agendamentos = new ArrayList<>();
+
         public String getTelefone() {
             return telefone;
         }
@@ -34,5 +37,13 @@ import java.util.List;
 
         public void setConsultas(List<Consulta> consultas) {
             this.consultas = consultas;
+        }
+
+        public List<Agendamento> getAgendamentos() {
+            return agendamentos;
+        }
+
+        public void setAgendamentos(List<Agendamento> agendamentos) {
+            this.agendamentos = agendamentos;
         }
     }

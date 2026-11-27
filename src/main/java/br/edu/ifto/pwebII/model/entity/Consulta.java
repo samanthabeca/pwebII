@@ -35,6 +35,11 @@ public class Consulta implements Serializable {
     @Column(nullable = false, length = 500)
     private String observacao;
 
+    @NotNull(message = "O status da consulta é obrigatório.")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatusConsulta status = StatusConsulta.CRIADA;
+
     // Muitas consultas possuem UM paciente
     @NotNull(message = "Selecione um paciente.")
     @ManyToOne(optional = false)
@@ -46,6 +51,11 @@ public class Consulta implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_medico", nullable = false)
     private Medico medico;
+
+    // Cada consulta pertence a uma única reserva; uma reserva não pode gerar mais de uma consulta.
+    @OneToOne
+    @JoinColumn(name = "id_agendamento", unique = true)
+    private Agendamento agendamento;
 
     public Long getId_consulta() {
         return id_consulta;
@@ -79,6 +89,14 @@ public class Consulta implements Serializable {
         this.observacao = observacao;
     }
 
+    public StatusConsulta getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusConsulta status) {
+        this.status = status;
+    }
+
     public Paciente getPaciente() {
         return paciente;
     }
@@ -93,5 +111,13 @@ public class Consulta implements Serializable {
 
     public void setMedico(Medico medico) {
         this.medico = medico;
+    }
+
+    public Agendamento getAgendamento() {
+        return agendamento;
+    }
+
+    public void setAgendamento(Agendamento agendamento) {
+        this.agendamento = agendamento;
     }
 }
