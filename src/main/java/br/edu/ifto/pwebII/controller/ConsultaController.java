@@ -1,8 +1,16 @@
 package br.edu.ifto.pwebII.controller;
 
+import br.edu.ifto.pwebII.model.dto.CadastroConsultaForm;
+import br.edu.ifto.pwebII.model.entity.Agenda;
+import br.edu.ifto.pwebII.model.entity.Agendamento;
 import br.edu.ifto.pwebII.model.entity.Consulta;
 import br.edu.ifto.pwebII.model.entity.Medico;
 import br.edu.ifto.pwebII.model.entity.Paciente;
+import br.edu.ifto.pwebII.model.entity.StatusAgenda;
+import br.edu.ifto.pwebII.model.entity.StatusAgendamento;
+import br.edu.ifto.pwebII.model.entity.StatusConsulta;
+import br.edu.ifto.pwebII.model.jdbc.repository.AgendaRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.AgendamentoRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
@@ -14,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.validation.BindingResult;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,20 +44,24 @@ public class ConsultaController {
     private final ConsultaRepository consultaRep;
     private final PacienteRepository pacienteRep;
     private final MedicoRepository medicoRep;
+    private final AgendaRepository agendaRep;
+    private final AgendamentoRepository agendamentoRep;
 
     @Autowired
-    public ConsultaController(ConsultaRepository consultaRep, PacienteRepository pacienteRep, MedicoRepository medicoRep) {
+    public ConsultaController(ConsultaRepository consultaRep, PacienteRepository pacienteRep, MedicoRepository medicoRep,
+                              AgendaRepository agendaRep, AgendamentoRepository agendamentoRep) {
         this.consultaRep = consultaRep;
         this.pacienteRep = pacienteRep;
         this.medicoRep = medicoRep;
+        this.agendaRep = agendaRep;
+        this.agendamentoRep = agendamentoRep;
     }
 
     @GetMapping("/form")
-    public ModelAndView form(Consulta consulta, ModelMap model){
-        garantirRelacionamentos(consulta);
-        carregarDadosDoFormulario(model);
-
-        return new ModelAndView("consulta/form", model);
+    public ModelAndView form(@ModelAttribute("cadastroConsulta") CadastroConsultaForm cadastroConsulta,
+                             ModelMap model) {
+        carregarDadosDoCadastroManual(model);
+        return new ModelAndView("consulta/cadastro-form", model);
     }
 
     @GetMapping("/list")
@@ -61,20 +75,40 @@ public class ConsultaController {
     }
 
     @PostMapping("/save")
-    public String save(@Valid Consulta consulta, BindingResult resultado, ModelMap model,
-                       RedirectAttributes redirectAttribute) {
-        if (consulta.getId_consulta() != null) {
-            resultado.reject("consulta.id.invalido", "Não é permitido informar um ID ao cadastrar uma consulta.");
+    public String save(@Valid @ModelAttribute("cadastroConsulta") CadastroConsultaForm cadastroConsulta,
+                       BindingResult resultado, ModelMap model, RedirectAttributes redirectAttribute) {
+        if (!podeCriarConsultaManual()) {
+            resultado.reject("consulta.permissao.negada", "Você não tem permissão para cadastrar consultas manualmente.");
         }
-        validarRelacionamentos(consulta, resultado);
+
+        Agenda agenda = buscarAgendaDeEncaixe(cadastroConsulta, resultado);
+        Paciente paciente = buscarPaciente(cadastroConsulta, resultado);
 
         if (resultado.hasErrors()) {
-            carregarDadosDoFormulario(model);
-            return "consulta/form";
+            carregarDadosDoCadastroManual(model);
+            return "consulta/cadastro-form";
         }
 
+        Agendamento agendamento = new Agendamento();
+        agendamento.setAgenda(agenda);
+        agendamento.setPaciente(paciente);
+        agendamento.setStatus(StatusAgendamento.REALIZADO);
+        agendamentoRep.save(agendamento);
+
+        Consulta consulta = new Consulta();
+        consulta.setAgendamento(agendamento);
+        consulta.setPaciente(paciente);
+        consulta.setMedico(agenda.getMedico());
+        consulta.setData(agenda.getData().atTime(agenda.getHorario()));
+        consulta.setValor(cadastroConsulta.getValor());
+        consulta.setObservacao(cadastroConsulta.getObservacao());
+        consulta.setStatus(StatusConsulta.CRIADA);
         consultaRep.save(consulta);
-        redirectAttribute.addFlashAttribute("mensagemSucesso", "Consulta cadastrada com sucesso!");
+
+        agenda.setStatus(StatusAgenda.AGENDADO);
+        agendaRep.save(agenda);
+
+        redirectAttribute.addFlashAttribute("mensagemSucesso", "Consulta de encaixe cadastrada com sucesso!");
         return "redirect:/consulta/list";
     }
 
@@ -133,6 +167,7 @@ public class ConsultaController {
             redirect.addFlashAttribute("mensagemErro", "Você não tem permissão para editar esta consulta.");
             return "redirect:/consulta/list";
         }
+        preservarVinculoDoAgendamento(consulta, consultaPersistida, resultado);
         validarRelacionamentos(consulta, resultado);
 
         if (resultado.hasErrors()) {
@@ -242,6 +277,11 @@ public class ConsultaController {
         model.addAttribute("medico", medicoRep.findAll());
     }
 
+    private void carregarDadosDoCadastroManual(ModelMap model) {
+        model.addAttribute("paciente", pacienteRep.findAll());
+        model.addAttribute("agenda", agendaRep.findAllByStatusOrderByDataAscHorarioAsc(StatusAgenda.DISPONIVEL_ENCAIXE));
+    }
+
     private void garantirRelacionamentos(Consulta consulta) {
         if (consulta.getPaciente() == null) {
             consulta.setPaciente(new Paciente());
@@ -265,5 +305,84 @@ public class ConsultaController {
         } else if (!medicoRep.existsById(consulta.getMedico().getId())) {
             resultado.rejectValue("medico.id", "consulta.medico.invalido", "O médico selecionado não existe.");
         }
+    }
+
+    private Agenda buscarAgendaDeEncaixe(CadastroConsultaForm cadastroConsulta, BindingResult resultado) {
+        if (cadastroConsulta.getAgendaId() == null) {
+            return null;
+        }
+
+        Agenda agenda = agendaRep.findById(cadastroConsulta.getAgendaId()).orElse(null);
+        if (agenda == null) {
+            resultado.rejectValue("agendaId", "consulta.agenda.invalida", "O horário selecionado não existe.");
+            return null;
+        }
+        if (agenda.getStatus() != StatusAgenda.DISPONIVEL_ENCAIXE) {
+            resultado.rejectValue("agendaId", "consulta.agenda.indisponivel", "O horário selecionado não está disponível para encaixe.");
+        }
+        if (agenda.getData().atTime(agenda.getHorario()).isBefore(LocalDateTime.now())) {
+            resultado.rejectValue("agendaId", "consulta.agenda.passada", "Não é possível criar uma consulta em horário passado.");
+        }
+        if (!medicoPodeUsarAgenda(agenda)) {
+            resultado.rejectValue("agendaId", "consulta.agenda.medico", "O médico só pode cadastrar consulta nos próprios horários.");
+        }
+        return agenda;
+    }
+
+    private Paciente buscarPaciente(CadastroConsultaForm cadastroConsulta, BindingResult resultado) {
+        if (cadastroConsulta.getPacienteId() == null) {
+            return null;
+        }
+
+        return pacienteRep.findById(cadastroConsulta.getPacienteId()).orElseGet(() -> {
+            resultado.rejectValue("pacienteId", "consulta.paciente.invalido", "O paciente selecionado não existe.");
+            return null;
+        });
+    }
+
+    private boolean podeCriarConsultaManual() {
+        Authentication autenticacao = SecurityContextHolder.getContext().getAuthentication();
+        return autenticacao != null && autenticacao.isAuthenticated()
+                && (possuiPerfil(autenticacao, "ROLE_MEDICO") || possuiPerfil(autenticacao, "ROLE_SECRETARIA"));
+    }
+
+    private boolean medicoPodeUsarAgenda(Agenda agenda) {
+        Authentication autenticacao = SecurityContextHolder.getContext().getAuthentication();
+        if (autenticacao == null || !possuiPerfil(autenticacao, "ROLE_MEDICO")) {
+            return true;
+        }
+
+        return medicoRep.findByEmailIgnoreCase(autenticacao.getName())
+                .map(medico -> medico.getId().equals(agenda.getMedico().getId()))
+                .orElse(false);
+    }
+
+    private void preservarVinculoDoAgendamento(Consulta consulta, Consulta consultaPersistida,
+                                                BindingResult resultado) {
+        Agendamento agendamento = consultaPersistida.getAgendamento();
+        if (agendamento == null) {
+            return;
+        }
+
+        Agenda agenda = agendamento.getAgenda();
+        boolean dadosDoAgendamentoForamAlterados = consulta.getPaciente() == null
+                || consulta.getPaciente().getId() == null
+                || !consulta.getPaciente().getId().equals(agendamento.getPaciente().getId())
+                || consulta.getMedico() == null
+                || consulta.getMedico().getId() == null
+                || !consulta.getMedico().getId().equals(agenda.getMedico().getId())
+                || consulta.getData() == null
+                || !consulta.getData().equals(agenda.getData().atTime(agenda.getHorario()));
+
+        if (dadosDoAgendamentoForamAlterados) {
+            resultado.reject("consulta.agendamento.inalteravel",
+                    "Paciente, médico, data e horário são definidos pelo agendamento e não podem ser alterados.");
+        }
+
+        consulta.setAgendamento(agendamento);
+        consulta.setPaciente(agendamento.getPaciente());
+        consulta.setMedico(agenda.getMedico());
+        consulta.setData(agenda.getData().atTime(agenda.getHorario()));
+        consulta.setStatus(consultaPersistida.getStatus());
     }
 }

@@ -34,6 +34,7 @@ public class SecurityConfiguration {
                                 "/medico/form", "/medico/save", "/medico/edit/**", "/medico/update")
                         .hasAnyRole("ADMIN", "SECRETARIA")
                         .requestMatchers("/paciente/remove/**", "/medico/remove/**").hasRole("ADMIN")
+                        .requestMatchers("/consulta/form", "/consulta/save").hasAnyRole("MEDICO", "SECRETARIA")
                         .anyRequest().authenticated() // demais requisições exigem usuário autenticado
                 )
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))

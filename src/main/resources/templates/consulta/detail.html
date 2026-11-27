@@ -37,6 +37,10 @@
                         <strong>Valor:</strong>
                         <p th:text="${'R$ ' + #numbers.formatDecimal(consulta.valor, 1, 'POINT', 2, 'COMMA')}"></p>
                     </div>
+                    <div class="col-md-6">
+                        <strong>Status:</strong>
+                        <p th:text="${consulta.status.descricao}"></p>
+                    </div>
                 </div>
 
                 <div class="mb-3">
