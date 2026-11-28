@@ -19,10 +19,14 @@
                             Cadastrar
                         </button>
                         <ul class="dropdown-menu">
+                            <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')"><a th:href="@{/agenda/form}" class="dropdown-item">🕒 Cadastrar Disponibilidade</a></li>
+                            <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasAnyRole('MEDICO','ADMIN','SECRETARIA')"><a th:href="@{/agenda/periodo/form}" class="dropdown-item">📅 Cadastrar Disponibilidade por Período</a></li>
+                            <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
-                            <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasAnyRole('MEDICO','SECRETARIA')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasAnyRole('MEDICO','SECRETARIA')"><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/secretaria/form}" class="dropdown-item">➕ Cadastrar Secretária</a></li>

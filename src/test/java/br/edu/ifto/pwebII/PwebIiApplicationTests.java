@@ -1,6 +1,8 @@
 package br.edu.ifto.pwebII;
 
+import br.edu.ifto.pwebII.model.jdbc.repository.AgendaRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -20,9 +23,19 @@ class PwebIiApplicationTests {
 	@Autowired
 	private MockMvc mockMvc;
 
+	@Autowired
+	private AgendaRepository agendaRepository;
+
 	@Test
 	void contextLoads() {
 	}
+
+	@Test
+	void deveExecutarConsultaDeDuplicidadeDaAgenda() {
+		assertFalse(agendaRepository.existeHorarioDoMedico(6L,
+				java.time.LocalDate.of(2027, 1, 5), java.time.LocalTime.of(8, 0)));
+	}
+
 
 	@Test
 	void deveExibirErrosAoCadastrarPacienteInvalido() throws Exception {

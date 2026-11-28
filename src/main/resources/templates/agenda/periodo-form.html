@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{::link},~{::title})}">
+    <link rel="stylesheet" th:href="@{/css/agenda-periodo.css}">
+    <title>Cadastro de Disponibilidade por Período</title>
+</head>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+    <div class="container agenda-periodo-page my-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-4">
+            <div>
+                <h1 class="mb-1">Disponibilidade por período</h1>
+                <p class="text-muted mb-0">Escolha o intervalo no calendário e os horários para os dias úteis.</p>
+            </div>
+            <a th:href="@{/agenda/form}" class="btn btn-outline-primary">Cadastro unitário</a>
+        </div>
+
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <form th:action="@{/agenda/periodo/save}" th:object="${cadastroDisponibilidadePeriodo}" method="post">
+            <div class="card agenda-periodo-card">
+                <div class="card-body">
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+            </div>
+
+            <div class="mb-3" th:if="${medicoRestrito}">
+                <label class="form-label">Médico:</label>
+                <input type="text" class="form-control" th:value="${medicoAutenticado.nome}" readonly>
+                <input type="hidden" th:field="*{medicoId}">
+            </div>
+
+            <div class="mb-3" th:unless="${medicoRestrito}">
+                <label for="medicoId" class="form-label">Médico:</label>
+                <select th:field="*{medicoId}" id="medicoId" class="form-select"
+                        th:classappend="${#fields.hasErrors('medicoId')} ? 'is-invalid' : ''">
+                    <option value="">-- Selecione um médico --</option>
+                    <option th:each="m : ${medico}" th:value="${m.id}" th:text="${m.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{medicoId}"></div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-semibold mb-0">Período de disponibilidade</label>
+                    <small class="text-muted">Sábados e domingos não serão cadastrados.</small>
+                </div>
+                <input type="hidden" th:field="*{dataInicial}" id="dataInicial">
+                <input type="hidden" th:field="*{dataFinal}" id="dataFinal">
+                <div class="period-calendar" data-period-calendar>
+                    <div class="period-calendar__header">
+                        <button type="button" class="period-calendar__navigation" data-calendar-previous
+                                aria-label="Mês anterior">‹</button>
+                        <h2 class="period-calendar__month" data-calendar-month></h2>
+                        <button type="button" class="period-calendar__navigation" data-calendar-next
+                                aria-label="Próximo mês">›</button>
+                    </div>
+                    <div class="period-calendar__weekdays" aria-hidden="true">
+                        <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+                    </div>
+                    <div class="period-calendar__days" data-calendar-days role="grid" aria-label="Calendário para seleção do período"></div>
+                    <div class="period-calendar__summary">
+                        <span data-calendar-summary aria-live="polite"></span>
+                        <button type="button" class="period-calendar__clear" data-calendar-clear>Limpar</button>
+                    </div>
+                </div>
+                <div class="text-danger mt-2" th:if="${#fields.hasErrors('dataInicial')}" th:errors="*{dataInicial}"></div>
+                <div class="text-danger mt-2" th:if="${#fields.hasErrors('dataFinal')}" th:errors="*{dataFinal}"></div>
+                <noscript><p class="text-danger mt-2 mb-0">Ative o JavaScript para selecionar o período no calendário.</p></noscript>
+            </div>
+
+            <fieldset class="mb-4">
+                <legend class="fs-6 fw-semibold mb-3">Horários de atendimento</legend>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="time-period">
+                            <div class="time-period__title"><span>☀️</span> Manhã <small class="text-muted fw-normal">08h às 11h</small></div>
+                            <div class="time-slots">
+                                <th:block th:each="horario : ${horariosPadrao}" th:if="${horario.hour le 12}">
+                                    <div class="time-slot-option">
+                                        <input class="btn-check" type="checkbox" th:field="*{horarios}"
+                                               th:value="${horario}" th:id="${'horario-' + horario}">
+                                        <label class="time-slot" th:for="${'horario-' + horario}"
+                                               th:text="${#temporals.format(horario, 'HH:mm')}"></label>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="time-period">
+                            <div class="time-period__title"><span>🌤️</span> Tarde <small class="text-muted fw-normal">14h às 17h</small></div>
+                            <div class="time-slots">
+                                <th:block th:each="horario : ${horariosPadrao}" th:if="${horario.hour ge 14}">
+                                    <div class="time-slot-option">
+                                        <input class="btn-check" type="checkbox" th:field="*{horarios}"
+                                               th:value="${horario}" th:id="${'horario-' + horario}">
+                                        <label class="time-slot" th:for="${'horario-' + horario}"
+                                               th:text="${#temporals.format(horario, 'HH:mm')}"></label>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-danger mt-2 d-none" data-schedule-validation role="alert">
+                    Selecione pelo menos um horário de atendimento.
+                </div>
+                <div class="text-danger mt-2" th:if="${#fields.hasErrors('horarios')}" th:errors="*{horarios}"></div>
+            </fieldset>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <input type="submit" value="Cadastrar disponibilidades" class="btn btn-primary px-4">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+            </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script th:src="@{/js/agenda-periodo.js}"></script>
+</main>
+</body>
+</html>
