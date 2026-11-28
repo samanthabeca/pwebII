@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Horários Disponíveis</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5">
+        <h1>Horários disponíveis</h1>
+        <p class="text-muted">Filtre os horários para encontrar uma disponibilidade para reserva.</p>
+
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <form th:action="@{/agenda/disponiveis}" method="get" class="horarios-filtros row g-3 mt-1 mb-4" novalidate>
+            <div class="col-12 col-md-4">
+                <label for="especialidadeId" class="form-label">Especialidade</label>
+                <select id="especialidadeId" name="especialidadeId" class="form-select">
+                    <option value="">Todas as especialidades</option>
+                    <option th:each="e : ${especialidade}" th:value="${e.id_especialidade}" th:text="${e.nome}"
+                            th:selected="${e.id_especialidade == especialidadeId}"></option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label for="medicoId" class="form-label">Médico</label>
+                <select id="medicoId" name="medicoId" class="form-select">
+                    <option value="">Todos os médicos</option>
+                    <option th:each="m : ${medico}" th:value="${m.id}" th:text="${m.nome}"
+                            th:attr="data-especialidade-id=${m.especialidade.id_especialidade}"
+                            th:selected="${m.id == medicoId}"></option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label for="data" class="form-label">Dia</label>
+                <input id="data" name="data" type="date" class="form-control" th:value="${data}"/>
+            </div>
+            <div class="col-12">
+                <div class="alert alert-warning mb-0 d-none" data-medico-obrigatorio role="alert"></div>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Buscar horários</button>
+                <a th:href="@{/agenda/disponiveis}" class="btn btn-outline-secondary">Limpar filtros</a>
+            </div>
+        </form>
+
+        <div th:unless="${filtrosAplicados}" class="alert alert-info" role="status">
+            Selecione pelo menos um filtro para consultar os horários disponíveis.
+        </div>
+
+        <div th:if="${selecaoMedicoObrigatoria}" class="alert alert-warning" role="alert">
+            Selecione um médico da especialidade informada para consultar os horários disponíveis.
+        </div>
+
+        <div th:if="${filtrosAplicados and not selecaoMedicoObrigatoria and #lists.isEmpty(agenda)}" class="alert alert-info" role="status">
+            Não há horários disponíveis para agendamento no momento.
+        </div>
+
+        <div th:if="${filtrosAplicados and not selecaoMedicoObrigatoria and not #lists.isEmpty(agenda)}" class="alert alert-info mb-0" role="status">
+            Horários encontrados: <strong th:text="${totalHorarios}">0</strong>
+        </div>
+
+        <div th:if="${filtrosAplicados and not selecaoMedicoObrigatoria and not #lists.isEmpty(agenda)}" class="table-responsive mt-3">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>Médico</th>
+                    <th>Especialidade</th>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th sec:authorize="hasRole('PACIENTE')" class="text-center">Ação</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${agenda}">
+                    <td th:text="${a.medico.nome}"></td>
+                    <td th:text="${a.medico.especialidade.nome}"></td>
+                    <td th:text="${#temporals.format(a.data, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(a.horario, 'HH:mm')}"></td>
+                    <td sec:authorize="hasRole('PACIENTE')" class="text-center">
+                        <button type="button" class="btn btn-sm btn-primary" th:attr="data-agenda-id=${a.id_agenda}">
+                            Agendar
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+    </div>
+    <script th:src="@{/js/agenda-disponiveis.js}"></script>
+</main>
+</body>
+</html>

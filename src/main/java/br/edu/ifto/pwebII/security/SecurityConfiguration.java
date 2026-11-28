@@ -29,12 +29,13 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/definir-senha").permitAll()
                         .requestMatchers("/pessoa/list").hasRole("ADMIN")
                         .requestMatchers("/perfil/**").authenticated()
-                        .requestMatchers("/administrador/**", "/secretaria/**").hasRole("ADMIN")
+                        .requestMatchers("/administrador/**", "/secretaria/**", "/especialidade/**").hasRole("ADMIN")
                         .requestMatchers("/paciente/form", "/paciente/save", "/paciente/edit/**", "/paciente/update",
                                 "/medico/form", "/medico/save", "/medico/edit/**", "/medico/update")
                         .hasAnyRole("ADMIN", "SECRETARIA")
                         .requestMatchers("/paciente/remove/**", "/medico/remove/**").hasRole("ADMIN")
                         .requestMatchers("/consulta/form", "/consulta/save").hasAnyRole("MEDICO", "SECRETARIA")
+                        .requestMatchers(HttpMethod.GET, "/agenda/disponiveis").authenticated()
                         .requestMatchers("/agenda/**").hasAnyRole("MEDICO", "SECRETARIA", "ADMIN")
                         .anyRequest().authenticated() // demais requisições exigem usuário autenticado
                 )

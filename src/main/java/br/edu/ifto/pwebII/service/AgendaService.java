@@ -109,6 +109,16 @@ public class AgendaService {
         return HORARIOS_PADRAO;
     }
 
+    public List<Agenda> listarDisponiveisParaReserva(Long medicoId, Long especialidadeId, LocalDate data) {
+        LocalDateTime agora = LocalDateTime.now();
+        return agendaRep.findDisponiveisParaReserva(StatusAgenda.DISPONIVEL, agora.toLocalDate(), agora.toLocalTime(),
+                medicoId, especialidadeId, data);
+    }
+
+    public List<Medico> listarMedicosParaFiltro() {
+        return medicoRep.findAllByOrderByNomeAsc();
+    }
+
     public List<Medico> medicosPermitidos(Authentication autenticacao) {
         if (podeGerenciarAgendaDeQualquerMedico(autenticacao)) {
             return medicoRep.findAll();

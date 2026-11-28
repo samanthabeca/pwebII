@@ -38,6 +38,16 @@
                 <div class="invalid-feedback" th:errors="*{crm}"></div>
             </div>
 
+            <div class="mb-3" th:if="${tipoPerfil == 'MEDICO'}">
+                <label for="especialidadeId" class="form-label">Especialidade:</label>
+                <select th:field="*{especialidadeId}" id="especialidadeId" class="form-select"
+                        th:classappend="${#fields.hasErrors('especialidadeId')} ? 'is-invalid' : ''">
+                    <option value="">-- Selecione uma especialidade --</option>
+                    <option th:each="e : ${especialidade}" th:value="${e.id_especialidade}" th:text="${e.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{especialidadeId}"></div>
+            </div>
+
             <br/>
 
             <input type="submit" value="Salvar" class="btn btn-primary">

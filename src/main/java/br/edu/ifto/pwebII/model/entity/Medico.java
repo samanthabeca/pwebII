@@ -2,6 +2,7 @@ package br.edu.ifto.pwebII.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
@@ -16,6 +17,11 @@ public class Medico extends PessoaFisica {
     @Column(nullable = false, length = 9)
     private String crm;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_especialidade", nullable = false)
+    @NotNull(message = "Selecione uma especialidade.")
+    private Especialidade especialidade;
+
     // Um médico possui várias consultas
     @OneToMany(mappedBy = "medico")
     private List<Consulta> consultas = new ArrayList<>();
@@ -29,6 +35,14 @@ public class Medico extends PessoaFisica {
 
     public void setCrm(String crm) {
         this.crm = crm;
+    }
+
+    public Especialidade getEspecialidade() {
+        return especialidade;
+    }
+
+    public void setEspecialidade(Especialidade especialidade) {
+        this.especialidade = especialidade;
     }
 
     public List<Consulta> getConsultas() {
