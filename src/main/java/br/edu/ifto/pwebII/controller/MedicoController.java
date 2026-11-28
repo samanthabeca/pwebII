@@ -1,8 +1,10 @@
 package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.entity.Consulta;
+import br.edu.ifto.pwebII.model.entity.Especialidade;
 import br.edu.ifto.pwebII.model.entity.Medico;
 import br.edu.ifto.pwebII.model.jdbc.repository.ConsultaRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.EspecialidadeRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import br.edu.ifto.pwebII.service.CredencialAcessoService;
 import jakarta.transaction.Transactional;
@@ -24,19 +26,24 @@ public class MedicoController {
 
     private final MedicoRepository repository;
     private final ConsultaRepository consultaRep;
+    private final EspecialidadeRepository especialidadeRep;
     private final CredencialAcessoService credencialAcessoService;
 
     // O Spring injetará o repositório automaticamente
     @Autowired
     public MedicoController(MedicoRepository repository, ConsultaRepository consultaRep,
+                            EspecialidadeRepository especialidadeRep,
                             CredencialAcessoService credencialAcessoService) {
         this.repository = repository;
         this.consultaRep = consultaRep;
+        this.especialidadeRep = especialidadeRep;
         this.credencialAcessoService = credencialAcessoService;
     }
 
     @GetMapping("/form")
-    public String form(Medico medico){
+    public String form(Medico medico, Model model){
+        garantirEspecialidade(medico);
+        carregarEspecialidades(model);
         return "medico/form";
     }
 
@@ -50,13 +57,15 @@ public class MedicoController {
 
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute Medico medico, BindingResult resultado,
-                       RedirectAttributes redirectAttribute) {
+                       Model model, RedirectAttributes redirectAttribute) {
         if (medico.getId() != null) {
             resultado.reject("medico.id.invalido", "Não é permitido informar um ID ao cadastrar um médico.");
         }
         validarDadosUnicos(medico, resultado);
+        validarEspecialidade(medico, resultado);
 
         if (resultado.hasErrors()) {
+            carregarEspecialidades(model);
             return "medico/form";
         }
 
@@ -97,18 +106,21 @@ public class MedicoController {
         }
 
         model.addAttribute("medico", medico);
+        carregarEspecialidades(model);
         return "medico/form";
     }
 
     @PostMapping("/update")
-    public String update(@Valid @ModelAttribute Medico medico, BindingResult resultado) {
+    public String update(@Valid @ModelAttribute Medico medico, BindingResult resultado, Model model) {
         Medico medicoExistente = medico.getId() == null ? null : repository.findById(medico.getId()).orElse(null);
         if (medicoExistente == null) {
             resultado.reject("medico.inexistente", "O médico informado não existe mais.");
         }
         validarDadosUnicos(medico, resultado);
+        validarEspecialidade(medico, resultado);
 
         if (resultado.hasErrors()) {
+            carregarEspecialidades(model);
             return "medico/form";
         }
 
@@ -117,6 +129,7 @@ public class MedicoController {
         medicoExistente.setCpf(medico.getCpf());
         medicoExistente.setEmail(medico.getEmail());
         medicoExistente.setCrm(medico.getCrm());
+        medicoExistente.setEspecialidade(medico.getEspecialidade());
         credencialAcessoService.sincronizarUsuario(medicoExistente, emailAnterior);
         repository.save(medicoExistente);
         return "redirect:/medico/list";
@@ -134,5 +147,29 @@ public class MedicoController {
                 .isPresent()) {
             resultado.rejectValue("email", "medico.email.duplicado", "Já existe um médico cadastrado com este e-mail.");
         }
+    }
+
+    private void carregarEspecialidades(Model model) {
+        model.addAttribute("especialidade", especialidadeRep.findAllByOrderByNomeAsc());
+    }
+
+    private void garantirEspecialidade(Medico medico) {
+        if (medico.getEspecialidade() == null) {
+            medico.setEspecialidade(new Especialidade());
+        }
+    }
+
+    private void validarEspecialidade(Medico medico, BindingResult resultado) {
+        garantirEspecialidade(medico);
+        Long idEspecialidade = medico.getEspecialidade().getId_especialidade();
+        if (idEspecialidade == null) {
+            resultado.rejectValue("especialidade.id_especialidade", "medico.especialidade.obrigatoria", "Selecione uma especialidade.");
+            return;
+        }
+
+        especialidadeRep.findById(idEspecialidade).ifPresentOrElse(
+                medico::setEspecialidade,
+                () -> resultado.rejectValue("especialidade.id_especialidade", "medico.especialidade.invalida", "A especialidade selecionada não existe.")
+        );
     }
 }

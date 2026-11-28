@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Lista de Especialidades</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5">
+        <h1>Lista de Especialidades</h1>
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <div class="alert alert-info mt-3" role="status">
+            Total de especialidades: <strong th:text="${totalEspecialidades}">0</strong>
+        </div>
+
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+            <tr><th>Id</th><th>Nome</th><th class="text-center">Ações</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${especialidade}">
+                <td th:text="${e.id_especialidade}"></td>
+                <td th:text="${e.nome}"></td>
+                <td class="text-center">
+                    <a th:href="@{/especialidade/edit/{id}(id=${e.id_especialidade})}" class="btn btn-sm btn-outline-primary">Editar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <a th:href="@{/especialidade/form}" class="btn btn-primary">Cadastrar</a>
+        <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+    </div>
+</main>
+</body>
+</html>

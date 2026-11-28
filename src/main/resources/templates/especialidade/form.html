@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Cadastro de Especialidade</title>
+</head>
+
+<body>
+<main>
+    <div class="container mt-5">
+        <h1 th:text="${especialidade.id_especialidade == null ? 'Cadastro de Especialidade' : 'Edição de Especialidade'}"></h1>
+
+        <form th:action="${especialidade.id_especialidade == null} ? @{/especialidade/save} : @{/especialidade/update}"
+              th:object="${especialidade}" method="post" class="mt-4">
+            <input type="hidden" th:field="*{id_especialidade}">
+
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome:</label>
+                <input type="text" th:field="*{nome}" id="nome" class="form-control"
+                       th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid' : ''"
+                       maxlength="80" placeholder="Digite o nome da especialidade">
+                <div class="invalid-feedback" th:errors="*{nome}"></div>
+            </div>
+
+            <input type="submit" value="Salvar" class="btn btn-primary">
+            <a th:href="@{/especialidade/list}" class="btn btn-success">Listar</a>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+        </form>
+    </div>
+    <script th:src="@{/js/especialidade.js}"></script>
+</main>
+</body>
+</html>

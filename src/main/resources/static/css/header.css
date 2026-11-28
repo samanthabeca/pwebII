@@ -27,6 +27,16 @@
     margin-left: 0 !important;
 }
 
+/* Formulários de cadastro e edição ficam em uma coluna de leitura confortável. */
+main > .container:not(.agenda-periodo-page) > form {
+    max-width: 42rem;
+}
+
+/* Os filtros de horários são uma consulta horizontal, não um formulário de cadastro. */
+main > .container:not(.agenda-periodo-page) > form.horarios-filtros {
+    max-width: none;
+}
+
 @media (max-width: 767.98px) {
     .login-page .app-navbar {
         min-height: auto;

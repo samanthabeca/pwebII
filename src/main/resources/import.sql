@@ -5,9 +5,22 @@ INSERT INTO TB_PACIENTE (id, cpf, nome, telefone, email) VALUES (3, '12345678901
 INSERT INTO TB_PACIENTE (id, cpf, nome, telefone, email) VALUES (4, '12345678902', 'Ana Clara', '6332182500','ana@mail.com');
 INSERT INTO TB_PACIENTE (id, cpf, nome, telefone, email) VALUES (5, '12345678903', 'Beatriz Souza', '6332320080','bia@mail.com');
 
-INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (6, '12345678904', 'Maria Souza', '2580/TO','maria@mail.com');
-INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (7, '12345678905', 'Derick Silva', '3250/TO','derick@mail.com');
-INSERT INTO TB_MEDICO (id, cpf, nome, crm, email) VALUES (8, '12345678906', 'Antonio Paiva', '5030/TO','toni@mail.com');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (1, 'Cardiologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (2, 'Clínico Geral');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (3, 'Dermatologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (4, 'Endocrinologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (5, 'Geriatra');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (6, 'Ginecologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (7, 'Mastologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (8, 'Nutrólogo');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (9, 'Oncologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (10, 'Pediatra');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (11, 'Pneumologista');
+INSERT INTO TB_ESPECIALIDADE (id_especialidade, nome) VALUES (12, 'Psiquiatra');
+
+INSERT INTO TB_MEDICO (id, cpf, nome, crm, email, id_especialidade) VALUES (6, '12345678904', 'Maria Souza', '2580/TO','maria@mail.com', 3);
+INSERT INTO TB_MEDICO (id, cpf, nome, crm, email, id_especialidade) VALUES (7, '12345678905', 'Derick Silva', '3250/TO','derick@mail.com', 1);
+INSERT INTO TB_MEDICO (id, cpf, nome, crm, email, id_especialidade) VALUES (8, '12345678906', 'Antonio Paiva', '5030/TO','toni@mail.com', 2);
 
 INSERT INTO TB_SECRETARIA (id, cpf, nome, email) VALUES (9, '12345678909', 'Ana Lima', 'analima@mail.com');
 INSERT INTO TB_SECRETARIA (id, cpf, nome, email) VALUES (10, '12345678910', 'Joana Alves', 'joana@mail.com');
@@ -58,5 +71,6 @@ UPDATE TB_SECRETARIA SET usuario_id = 9 WHERE id = 9;
 UPDATE TB_SECRETARIA SET usuario_id = 10 WHERE id = 10;
 
 ALTER SEQUENCE pessoa_seq RESTART WITH 11;
+ALTER SEQUENCE tb_especialidade_seq RESTART WITH 13;
 -- ALTER SEQUENCE tb_consulta_seq RESTART WITH 6;
 ALTER TABLE usuario ALTER COLUMN id RESTART WITH 11;

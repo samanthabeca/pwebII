@@ -26,6 +26,8 @@
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/paciente/form}" class="dropdown-item">➕ Cadastrar Paciente</a></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasAnyRole('ADMIN','SECRETARIA')"><a th:href="@{/medico/form}" class="dropdown-item">➕ Cadastrar Médico</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/especialidade/form}" class="dropdown-item">🩺 Cadastrar Especialidade</a></li>
                             <li sec:authorize="hasAnyRole('MEDICO','SECRETARIA')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasAnyRole('MEDICO','SECRETARIA')"><a th:href="@{/consulta/form}" class="dropdown-item">➕ Cadastrar Consulta</a></li>
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
@@ -50,6 +52,9 @@
                             <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                             <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/administrador/list}" class="dropdown-item">📋 Listar Administradores</a></li>
                         </ul>
+                    </li>
+                    <li sec:authorize="isAuthenticated()" class="nav-item">
+                        <a th:href="@{/agenda/disponiveis}" class="nav-link">Horários disponíveis</a>
                     </li>
                 </ul>
             </div>

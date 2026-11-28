@@ -26,6 +26,8 @@ public class PerfilUsuarioForm {
     @Pattern(regexp = "\\d{4,6}/[A-Z]{2}", message = "Informe o CRM no formato 1234/UF.")
     private String crm;
 
+    private Long especialidadeId;
+
     public String getNome() {
         return nome;
     }
@@ -64,5 +66,13 @@ public class PerfilUsuarioForm {
 
     public void setCrm(String crm) {
         this.crm = crm;
+    }
+
+    public Long getEspecialidadeId() {
+        return especialidadeId;
+    }
+
+    public void setEspecialidadeId(Long especialidadeId) {
+        this.especialidadeId = especialidadeId;
     }
 }

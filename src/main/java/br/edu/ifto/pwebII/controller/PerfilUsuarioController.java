@@ -2,12 +2,14 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.dto.PerfilUsuarioForm;
 import br.edu.ifto.pwebII.model.entity.Administrador;
+import br.edu.ifto.pwebII.model.entity.Especialidade;
 import br.edu.ifto.pwebII.model.entity.Medico;
 import br.edu.ifto.pwebII.model.entity.Paciente;
 import br.edu.ifto.pwebII.model.entity.PessoaFisica;
 import br.edu.ifto.pwebII.model.entity.Secretaria;
 import br.edu.ifto.pwebII.model.entity.Usuario;
 import br.edu.ifto.pwebII.model.jdbc.repository.AdministradorRepository;
+import br.edu.ifto.pwebII.model.jdbc.repository.EspecialidadeRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.MedicoRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.PacienteRepository;
 import br.edu.ifto.pwebII.model.jdbc.repository.SecretariaRepository;
@@ -36,17 +38,20 @@ public class PerfilUsuarioController {
     private final SecretariaRepository secretariaRepository;
     private final PacienteRepository pacienteRepository;
     private final MedicoRepository medicoRepository;
+    private final EspecialidadeRepository especialidadeRepository;
     private final UsuarioRepository usuarioRepository;
 
     public PerfilUsuarioController(AdministradorRepository administradorRepository,
                                    SecretariaRepository secretariaRepository,
                                    PacienteRepository pacienteRepository,
                                    MedicoRepository medicoRepository,
+                                   EspecialidadeRepository especialidadeRepository,
                                    UsuarioRepository usuarioRepository) {
         this.administradorRepository = administradorRepository;
         this.secretariaRepository = secretariaRepository;
         this.pacienteRepository = pacienteRepository;
         this.medicoRepository = medicoRepository;
+        this.especialidadeRepository = especialidadeRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -55,6 +60,7 @@ public class PerfilUsuarioController {
         PessoaFisica pessoa = buscarPerfil(usuarioLogado.getUsername());
         model.addAttribute("perfil", criarFormulario(pessoa));
         model.addAttribute("tipoPerfil", tipoPerfil(pessoa));
+        carregarEspecialidadesSeMedico(pessoa, model);
         return "perfil/form";
     }
 
@@ -71,6 +77,7 @@ public class PerfilUsuarioController {
 
         if (resultado.hasErrors()) {
             model.addAttribute("tipoPerfil", tipoPerfil(pessoa));
+            carregarEspecialidadesSeMedico(pessoa, model);
             return "perfil/form";
         }
 
@@ -83,6 +90,8 @@ public class PerfilUsuarioController {
         }
         if (pessoa instanceof Medico medico) {
             medico.setCrm(perfil.getCrm());
+            medico.setEspecialidade(especialidadeRepository.findById(perfil.getEspecialidadeId())
+                    .orElseThrow(() -> new IllegalStateException("Especialidade não encontrada.")));
         }
         salvar(pessoa);
 
@@ -118,6 +127,9 @@ public class PerfilUsuarioController {
         }
         if (pessoa instanceof Medico medico) {
             formulario.setCrm(medico.getCrm());
+            if (medico.getEspecialidade() != null) {
+                formulario.setEspecialidadeId(medico.getEspecialidade().getId_especialidade());
+            }
         }
         return formulario;
     }
@@ -141,6 +153,11 @@ public class PerfilUsuarioController {
         }
         if (pessoa instanceof Medico && (perfil.getCrm() == null || perfil.getCrm().isBlank())) {
             resultado.rejectValue("crm", "perfil.crm.obrigatorio", "O CRM é obrigatório.");
+        }
+        if (pessoa instanceof Medico && perfil.getEspecialidadeId() == null) {
+            resultado.rejectValue("especialidadeId", "perfil.especialidade.obrigatoria", "Selecione uma especialidade.");
+        } else if (pessoa instanceof Medico && !especialidadeRepository.existsById(perfil.getEspecialidadeId())) {
+            resultado.rejectValue("especialidadeId", "perfil.especialidade.invalida", "A especialidade selecionada não existe.");
         }
     }
 
@@ -186,6 +203,12 @@ public class PerfilUsuarioController {
             pacienteRepository.save(paciente);
         } else if (pessoa instanceof Medico medico) {
             medicoRepository.save(medico);
+        }
+    }
+
+    private void carregarEspecialidadesSeMedico(PessoaFisica pessoa, Model model) {
+        if (pessoa instanceof Medico) {
+            model.addAttribute("especialidade", especialidadeRepository.findAllByOrderByNomeAsc());
         }
     }
 }

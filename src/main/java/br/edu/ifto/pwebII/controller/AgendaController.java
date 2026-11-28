@@ -2,7 +2,9 @@ package br.edu.ifto.pwebII.controller;
 
 import br.edu.ifto.pwebII.model.dto.CadastroDisponibilidadeForm;
 import br.edu.ifto.pwebII.model.dto.CadastroDisponibilidadePeriodoForm;
+import br.edu.ifto.pwebII.model.entity.Agenda;
 import br.edu.ifto.pwebII.model.entity.Medico;
+import br.edu.ifto.pwebII.model.jdbc.repository.EspecialidadeRepository;
 import br.edu.ifto.pwebII.service.AgendaService;
 import br.edu.ifto.pwebII.service.RegraAgendaException;
 import jakarta.validation.Valid;
@@ -15,9 +17,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -25,9 +30,11 @@ import java.util.List;
 public class AgendaController {
 
     private final AgendaService agendaService;
+    private final EspecialidadeRepository especialidadeRep;
 
-    public AgendaController(AgendaService agendaService) {
+    public AgendaController(AgendaService agendaService, EspecialidadeRepository especialidadeRep) {
         this.agendaService = agendaService;
+        this.especialidadeRep = especialidadeRep;
     }
 
     @GetMapping("/form")
@@ -35,6 +42,39 @@ public class AgendaController {
                        ModelMap model) {
         carregarMedicosPermitidos(cadastroDisponibilidade, model);
         return "agenda/form";
+    }
+
+    @GetMapping("/disponiveis")
+    public String disponiveis(@RequestParam(required = false) Long medicoId,
+                              @RequestParam(required = false) Long especialidadeId,
+                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+                              ModelMap model) {
+        List<Medico> medicos = agendaService.listarMedicosParaFiltro();
+        List<Medico> medicosDaEspecialidade = especialidadeId == null ? List.of() : medicos.stream()
+                .filter(medico -> medico.getEspecialidade().getId_especialidade().equals(especialidadeId))
+                .toList();
+
+        if (especialidadeId != null && medicoId == null && medicosDaEspecialidade.size() == 1) {
+            medicoId = medicosDaEspecialidade.getFirst().getId();
+        }
+
+        boolean filtrosAplicados = medicoId != null || especialidadeId != null || data != null;
+        boolean especialidadeSemMedico = especialidadeId != null && medicoId == null;
+        boolean selecaoMedicoObrigatoria = especialidadeSemMedico && medicosDaEspecialidade.size() > 1;
+        List<Agenda> agendas = filtrosAplicados && !especialidadeSemMedico
+                ? agendaService.listarDisponiveisParaReserva(medicoId, especialidadeId, data)
+                : List.of();
+        model.addAttribute("agenda", agendas);
+        model.addAttribute("totalHorarios", agendas.size());
+        model.addAttribute("medico", medicos);
+        model.addAttribute("especialidade", especialidadeRep.findComMedicosOrderByNomeAsc());
+        model.addAttribute("medicoId", medicoId);
+        model.addAttribute("especialidadeId", especialidadeId);
+        model.addAttribute("data", data);
+        model.addAttribute("filtrosAplicados", filtrosAplicados);
+        model.addAttribute("especialidadeSemMedico", especialidadeSemMedico);
+        model.addAttribute("selecaoMedicoObrigatoria", selecaoMedicoObrigatoria);
+        return "agenda/disponiveis";
     }
 
     @PostMapping("/save")
