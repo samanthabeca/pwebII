@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head(~{},~{::title})}">
+    <title>Cadastro de Disponibilidade</title>
+</head>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main>
+    <div class="container mt-5">
+        <h1>Cadastro de Disponibilidade</h1>
+        <p class="text-muted">Cadastre um novo horário disponível para atendimento.</p>
+
+        <div th:replace="~{fragments/mensagens :: mensagens}"></div>
+
+        <form th:action="@{/agenda/save}" th:object="${cadastroDisponibilidade}" method="post" class="mt-4">
+            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" role="alert">
+                <div th:each="erro : ${#fields.globalErrors()}" th:text="${erro}"></div>
+            </div>
+
+            <div class="mb-3" th:if="${medicoRestrito}">
+                <label class="form-label">Médico:</label>
+                <input type="text" class="form-control" th:value="${medicoAutenticado.nome}" readonly>
+                <input type="hidden" th:field="*{medicoId}">
+            </div>
+
+            <div class="mb-3" th:unless="${medicoRestrito}">
+                <label for="medicoId" class="form-label">Médico:</label>
+                <select th:field="*{medicoId}" id="medicoId" class="form-select"
+                        th:classappend="${#fields.hasErrors('medicoId')} ? 'is-invalid' : ''">
+                    <option value="">-- Selecione um médico --</option>
+                    <option th:each="m : ${medico}" th:value="${m.id}" th:text="${m.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{medicoId}"></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="data" class="form-label">Data:</label>
+                    <input type="date" th:field="*{data}" id="data" class="form-control"
+                           th:classappend="${#fields.hasErrors('data')} ? 'is-invalid' : ''">
+                    <div class="invalid-feedback" th:errors="*{data}"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="horario" class="form-label">Horário:</label>
+                    <input type="time" th:field="*{horario}" id="horario" class="form-control"
+                           th:classappend="${#fields.hasErrors('horario')} ? 'is-invalid' : ''">
+                    <div class="invalid-feedback" th:errors="*{horario}"></div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <input type="submit" value="Cadastrar disponibilidade" class="btn btn-primary">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
